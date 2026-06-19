@@ -184,7 +184,7 @@ export const walmartBreakdown: PlatformBreakdownData = {
     { label: "Product cost", value: "-$35.00", deduction: true },
     { label: "Hidden charge", value: "$0.00" },
   ],
-  netProfit: "$100.00",
+  netProfit: "$40.00",
   margin: "40%",
   roi: "114%",
   rayShare: "$16.00",
