@@ -3,7 +3,7 @@ import { PricingSection } from "@/components/site/PricingSection";
 
 import { FinalCTA } from "@/components/site/FinalCTA";
 import { Section, Disclaimer } from "@/components/site/Section";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Minus, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -17,23 +17,20 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-const ROWS = [
-  ["Marketplace Setup Support", true, true, true],
-  ["Product Research", true, true, true],
-  ["Listing Management", true, true, true],
-  ["Supplier Coordination", true, false, false],
-  ["Order Management Support", true, true, true],
-  ["Customer Support", true, true, true],
-  ["Content Strategy Guidance", false, true, false],
-  ["Dedicated Account Support", true, false, false],
-  ["Transparent Reporting", true, true, "Monthly"],
-  ["Scaling Strategy", true, false, false],
-] as const;
-
-function Cell({ v }: { v: boolean | string }) {
-  if (typeof v === "string") return <span className="text-sm">{v}</span>;
-  return v ? <CheckCircle2 className="h-5 w-5 text-success mx-auto" /> : <XCircle className="h-5 w-5 text-muted-foreground/50 mx-auto" />;
-}
+type CompareRow = { feature: string; ray: string; other: string };
+const COMPARE_ROWS: CompareRow[] = [
+  { feature: "Marketplace Setup Support", ray: "Included", other: "Often limited" },
+  { feature: "Product Research", ray: "Included", other: "May be basic" },
+  { feature: "Listing Management", ray: "Included", other: "Sometimes limited" },
+  { feature: "Supplier Coordination", ray: "Included", other: "Often not included" },
+  { feature: "Order Management Support", ray: "Included", other: "Limited or separate" },
+  { feature: "Customer Support Workflow", ray: "Included", other: "Often limited" },
+  { feature: "Content Strategy Guidance", ray: "Included where applicable", other: "Usually separate" },
+  { feature: "Dedicated Account Support", ray: "Included", other: "May be unavailable" },
+  { feature: "Transparent Reporting", ray: "Monthly reporting", other: "Often unclear" },
+  { feature: "Scaling Strategy", ray: "Included", other: "May be separate" },
+  { feature: "Ad Management", ray: "Available where applicable", other: "Usually separate or limited" },
+];
 
 function PricingPage() {
   return (
@@ -48,43 +45,76 @@ function PricingPage() {
 
       <PricingSection />
 
-      <Section eyebrow="Compare" title="Plan Comparison">
-        <div className="overflow-x-auto">
-          <table className="w-full rounded-3xl overflow-hidden border border-border bg-white">
-            <thead className="bg-muted">
-              <tr className="text-left">
-                <th className="p-4 text-sm font-bold">What's Included</th>
-                <th className="p-4 text-sm font-bold text-center bg-primary/10">Walmart $499</th>
-                <th className="p-4 text-sm font-bold text-center">TikTok $299</th>
-                <th className="p-4 text-sm font-bold text-center">eBay $99</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ROWS.map((r, i) => (
-                <tr key={i} className="border-t border-border">
-                  <td className="p-4 text-sm font-medium">{r[0]}</td>
-                  <td className="p-4 text-center bg-primary/5"><Cell v={r[1]} /></td>
-                  <td className="p-4 text-center"><Cell v={r[2]} /></td>
-                  <td className="p-4 text-center"><Cell v={r[3]} /></td>
-                </tr>
+      <Section
+        eyebrow="Service Comparison"
+        title="Why Sellers Choose Ray Ecommerce Over Typical Marketplace Help"
+        subtitle="Compare the level of structure, transparency, and management support Ray Ecommerce provides compared with basic marketplace support providers."
+      >
+        {/* Desktop table */}
+        <div className="hidden md:block">
+          <div className="rounded-3xl border border-border bg-white shadow-[0_20px_60px_-30px_rgba(15,23,42,0.18)] overflow-hidden">
+            <div className="grid grid-cols-12 bg-gradient-to-r from-primary/[0.06] via-white to-white px-6 py-4 border-b border-border">
+              <div className="col-span-5 text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground">What's Included</div>
+              <div className="col-span-4 flex items-center gap-2 text-sm font-bold text-primary">
+                <Sparkles className="h-4 w-4" /> Ray Ecommerce
+              </div>
+              <div className="col-span-3 text-sm font-bold text-foreground/70">Other Providers</div>
+            </div>
+            <div>
+              {COMPARE_ROWS.map((row, i) => (
+                <div
+                  key={row.feature}
+                  className={`grid grid-cols-12 items-center px-6 py-4 text-sm ${i % 2 === 0 ? "bg-white" : "bg-muted/30"} border-b border-border/60 last:border-b-0`}
+                >
+                  <div className="col-span-5 font-medium text-foreground">{row.feature}</div>
+                  <div className="col-span-4 flex items-center gap-2 text-foreground/85">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </span>
+                    {row.ray}
+                  </div>
+                  <div className="col-span-3 flex items-center gap-2 text-muted-foreground">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
+                      <Minus className="h-4 w-4" />
+                    </span>
+                    {row.other}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
+
+        {/* Mobile stacked cards */}
+        <div className="md:hidden space-y-3">
+          {COMPARE_ROWS.map((row) => (
+            <div key={row.feature} className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+              <div className="text-sm font-bold text-foreground">{row.feature}</div>
+              <div className="mt-3 grid grid-cols-1 gap-2">
+                <div className="flex items-start gap-2 rounded-xl bg-primary/[0.06] border border-primary/15 p-3">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <div className="text-xs">
+                    <div className="font-bold text-primary">Ray Ecommerce</div>
+                    <div className="text-foreground/80">{row.ray}</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 rounded-xl bg-muted/50 border border-border p-3">
+                  <Minus className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <div className="text-xs">
+                    <div className="font-bold text-foreground/70">Other Providers</div>
+                    <div className="text-muted-foreground">{row.other}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <Disclaimer>
           Prices may represent setup, onboarding, or management package starting points. Marketplace fees, supplier costs, advertising costs, software tools, and other operational expenses may apply separately.
         </Disclaimer>
       </Section>
 
-      <Section eyebrow="What May Cost Extra" title="Operational Expenses Outside Plan Pricing" center={false}>
-        <ul className="grid md:grid-cols-2 gap-3 text-sm text-foreground/80 max-w-3xl">
-          {["Marketplace fees and commissions", "Supplier and product costs", "Shipping and fulfillment costs", "Advertising and promotional spend", "Optional software, tools, or subscriptions", "Taxes and regulatory fees"].map((t) => (
-            <li key={t} className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-primary mt-0.5" /> {t}</li>
-          ))}
-        </ul>
-      </Section>
-
-      
       <FinalCTA />
     </>
   );

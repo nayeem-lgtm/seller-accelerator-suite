@@ -5,6 +5,8 @@ import {
   Settings,
   TrendingUp,
   Layers,
+  Megaphone,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import featuredImg from "@/assets/blog/featured-marketplace-growth.jpg";
@@ -26,6 +28,7 @@ export const CATEGORIES = [
   "eBay",
   "Store Management",
   "Seller Growth",
+  "Ad Management",
   "Success Stories",
 ] as const;
 
@@ -350,6 +353,84 @@ export const ARTICLES: Article[] = [
         heading: "Easy Handover",
         body:
           "Because you own the account, you can change support, scale up, or bring work in-house without losing your store.",
+      },
+    ],
+  },
+  {
+    slug: "marketplace-ad-management-visibility",
+    title: "How Marketplace Ad Management Supports Better Product Visibility",
+    excerpt:
+      "Ad management can help sellers understand campaign structure, budget control, product visibility, and performance reporting without relying on guesswork.",
+    category: "Ad Management",
+    Icon: Megaphone,
+    image: pricingPlansImg,
+    imageAlt: "Marketplace ad management campaign dashboard",
+    intro:
+      "Marketplace ads are not a magic button. Sellers who treat ads as a structured operation — with clear campaign goals, budgets, and reporting — make better decisions than sellers who boost listings on instinct.",
+    sections: [
+      {
+        heading: "Campaign Structure First",
+        body:
+          "Group products by category, margin, and goal before launching campaigns. A clean structure makes performance readable and lets you scale what works without scaling what doesn't.",
+      },
+      {
+        heading: "Budget Control",
+        body:
+          "Daily budgets, bid ceilings, and pacing decisions protect spend. Without controls, a single underperforming campaign can drain a month of ad budget overnight.",
+      },
+      {
+        heading: "Product Visibility",
+        body:
+          "Ads are one input to visibility — listing quality, pricing, and reviews also decide whether a click becomes a sale. Treat ads as an amplifier of a healthy listing, not a fix for a weak one.",
+      },
+      {
+        heading: "Performance Reporting",
+        body:
+          "Track impressions, clicks, conversion rate, ACoS/TACoS, and net contribution per product. Reporting closes the loop between spend and outcome.",
+      },
+      {
+        heading: "Where Ray Ecommerce Helps",
+        body:
+          "Ad management is available where applicable as part of marketplace operations support. Outcomes depend on product, marketplace, demand, and competition — Ray Ecommerce does not guarantee ad results.",
+      },
+    ],
+  },
+  {
+    slug: "reporting-before-scaling-marketplace-ads",
+    title: "Why Reporting Matters Before Scaling Marketplace Ads",
+    excerpt:
+      "Before increasing ad spend, sellers need clear reporting around product performance, costs, marketplace fees, and net profit visibility.",
+    category: "Ad Management",
+    Icon: BarChart3,
+    image: storeManagementImg,
+    imageAlt: "Marketplace ad reporting and net profit analytics",
+    intro:
+      "Scaling ads without reporting is how budgets disappear. A simple reporting rhythm gives sellers the visibility to decide what to push, what to pause, and what to fix before adding more spend.",
+    sections: [
+      {
+        heading: "Know Your Cost Stack",
+        body:
+          "Product cost, shipping, marketplace fees, software, and ad spend stack on top of each other. Reporting that ignores any of these can make a losing product look profitable.",
+      },
+      {
+        heading: "Read Performance Per Product",
+        body:
+          "Aggregate numbers hide weak SKUs. Performance-per-product reporting is what lets sellers find the few products that actually deserve more budget.",
+      },
+      {
+        heading: "Net Profit Visibility",
+        body:
+          "Net profit — revenue minus marketplace fees, product and supplier costs, ad spend, shipping, and other operating expenses — is the number that matters before scaling spend.",
+      },
+      {
+        heading: "Test, Then Scale",
+        body:
+          "Use reporting to validate that a small test is actually profitable on a net basis. Scale spend on signals, not feelings.",
+      },
+      {
+        heading: "Compliance & Honesty",
+        body:
+          "Ray Ecommerce does not guarantee ad performance, revenue, or profit. Marketplace outcomes depend on product selection, supplier pricing, marketplace rules, demand, and competition.",
       },
     ],
   },

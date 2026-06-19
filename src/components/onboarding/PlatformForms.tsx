@@ -1,7 +1,149 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CollapsibleCard, Field, FileUploadBox, PrivacyNote, TextField, type PlatformKey } from "./shared";
+import { ShieldCheck } from "lucide-react";
+import {
+  CollapsibleCard,
+  Field,
+  FileUploadBox,
+  PasswordField,
+  PLATFORM_FULL_NAME,
+  PLATFORM_LOGIN_LABEL,
+  PLATFORM_STORE_LABEL,
+  PLATFORMS,
+  PrivacyNote,
+  TextField,
+  platformsLabel,
+  type PlatformKey,
+} from "./shared";
+
+/* =========================================================
+   MULTI-PLATFORM EXISTING ACCOUNT FORM
+   - Renders one credentials card per selected platform
+   - Per-platform authorization checkbox (long legal wording)
+   - No supporting document uploads
+   - Dynamic security note (single / multi)
+   ========================================================= */
+export function MultiPlatformExistingForm({
+  platforms,
+  forms,
+  setField,
+  authorized,
+  setAuthorized,
+}: {
+  platforms: PlatformKey[];
+  forms: Record<string, Record<string, string>>;
+  setField: (platform: PlatformKey, key: string, value: string) => void;
+  authorized: Record<string, boolean>;
+  setAuthorized: (platform: PlatformKey, v: boolean) => void;
+}) {
+  return (
+    <div className="space-y-6">
+      {platforms.map((platform, idx) => {
+        const labels = PLATFORM_LOGIN_LABEL[platform];
+        const fullName = PLATFORM_FULL_NAME[platform];
+        const state = forms[platform] || {};
+        const set = (k: string, v: string) => setField(platform, k, v);
+        return (
+          <div
+            key={platform}
+            className="rounded-3xl border border-border bg-white shadow-[0_8px_30px_-18px_rgba(15,23,42,0.18)] overflow-hidden"
+          >
+            <div className="flex items-center justify-between gap-4 px-6 py-4 bg-gradient-to-r from-primary/[0.06] to-transparent border-b border-border">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="h-9 w-9 shrink-0 rounded-full brand-gradient text-white grid place-items-center text-sm font-bold">
+                  {idx + 1}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary">{fullName}</div>
+                  <div className="font-semibold truncate">{fullName} Credentials</div>
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-foreground/70 hidden sm:block">
+                Package fee · ${PLATFORMS[platform].price}
+              </div>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <TextField
+                  label={labels.email}
+                  value={state.loginEmail || ""}
+                  onChange={(v) => set("loginEmail", v)}
+                  type="email"
+                  required
+                />
+                <PasswordField
+                  label={labels.password}
+                  value={state.loginPassword || ""}
+                  onChange={(v) => set("loginPassword", v)}
+                  required
+                />
+                <TextField
+                  label="Business display name"
+                  value={state.displayName || ""}
+                  onChange={(v) => set("displayName", v)}
+                  required
+                />
+                <TextField
+                  label="Store URL or seller profile link"
+                  value={state.storeUrl || ""}
+                  onChange={(v) => set("storeUrl", v)}
+                  placeholder="https://"
+                />
+                <Field label="Current account status" required>
+                  <Select value={state.accountStatus || ""} onValueChange={(v) => set("accountStatus", v)}>
+                    <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="under_review">Under Review</SelectItem>
+                      <SelectItem value="limited">Limited</SelectItem>
+                      <SelectItem value="suspended">Suspended</SelectItem>
+                      <SelectItem value="not_sure">Not Sure</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Notes (optional)" full>
+                  <Textarea
+                    rows={3}
+                    value={state.notes || ""}
+                    onChange={(e) => set("notes", e.target.value)}
+                    placeholder="Anything we should know about your account?"
+                  />
+                </Field>
+              </div>
+
+              <label className="flex gap-3 items-start rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm cursor-pointer">
+                <Checkbox
+                  checked={!!authorized[platform]}
+                  onCheckedChange={(v) => setAuthorized(platform, !!v)}
+                  className="mt-0.5"
+                />
+                <span className="text-foreground/85 leading-relaxed">
+                  I authorize Ray Advertising (&quot;Ray Ecommerce&quot;) to access and manage my{" "}
+                  <strong>{PLATFORM_STORE_LABEL[platform]}</strong> on my behalf. I confirm that I am the account
+                  owner or an authorized representative with the authority to grant this access. This
+                  authorization remains in effect until I revoke it in writing.
+                </span>
+              </label>
+            </div>
+          </div>
+        );
+      })}
+
+      <div className="flex items-start gap-2 rounded-2xl bg-primary/5 border border-primary/15 p-4 text-xs md:text-sm text-foreground/80">
+        <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+        <span>
+          {platforms.length > 1 ? (
+            <>Your information is encrypted and used only to manage your selected marketplace stores ({platformsLabel(platforms)}). We keep your account details strictly confidential, never share them with third parties, and you can revoke this access at any time.</>
+          ) : (
+            <>Your information is encrypted and used only to manage your {PLATFORM_STORE_LABEL[platforms[0]]}. We keep your account details strictly confidential, never share them with third parties, and you can revoke this access at any time.</>
+          )}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 /* =========================================================
    EXISTING ACCOUNT FORMS

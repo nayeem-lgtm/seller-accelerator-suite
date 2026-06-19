@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, User as UserIcon, LogOut, LayoutDashboard, ChevronDown, Store, Tv, ShoppingBag } from "lucide-react";
+import { Menu, X, User as UserIcon, LogOut, LayoutDashboard, ChevronDown } from "lucide-react";
 import logoAsset from "@/assets/ray-logo.asset.json";
+import { PlatformLogo } from "@/components/site/PlatformLogo";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,10 +15,10 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-const SERVICE_LINKS: { to: string; label: string; description: string; Icon: typeof Store }[] = [
-  { to: "/walmart", label: "Walmart", description: "Walmart Marketplace store launch & operations", Icon: Store },
-  { to: "/tiktok-shop", label: "TikTok Shop", description: "Social commerce setup & growth", Icon: Tv },
-  { to: "/ebay", label: "eBay", description: "Beginner-friendly marketplace operations", Icon: ShoppingBag },
+const SERVICE_LINKS: { to: string; label: string; description: string; platform: "walmart" | "tiktok" | "ebay" }[] = [
+  { to: "/walmart", label: "Walmart", description: "Walmart Marketplace store launch & operations", platform: "walmart" },
+  { to: "/tiktok-shop", label: "TikTok Shop", description: "Social commerce setup & growth", platform: "tiktok" },
+  { to: "/ebay", label: "eBay", description: "Beginner-friendly marketplace operations", platform: "ebay" },
 ];
 
 export function SiteHeader() {
@@ -121,8 +122,8 @@ export function SiteHeader() {
                       onClick={() => setServicesOpen(false)}
                       className="group flex items-start gap-3 rounded-xl p-3 hover:bg-primary/[0.06] transition-colors"
                     >
-                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                        <s.Icon className="h-4 w-4" />
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-border shadow-sm overflow-hidden">
+                        <PlatformLogo platform={s.platform} variant="mark" className="h-6 w-auto" />
                       </span>
                       <span className="flex-1 min-w-0">
                         <span className="block text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
@@ -132,16 +133,6 @@ export function SiteHeader() {
                       </span>
                     </Link>
                   ))}
-                </div>
-                <div className="mt-1 border-t border-border pt-1">
-                  <Link
-                    to="/services"
-                    onClick={() => setServicesOpen(false)}
-                    className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold text-primary hover:bg-primary/[0.06] transition-colors"
-                  >
-                    View all services
-                    <span aria-hidden>→</span>
-                  </Link>
                 </div>
               </div>
             </div>
@@ -265,19 +256,12 @@ export function SiteHeader() {
                     onClick={() => { setOpen(false); setMobileServicesOpen(false); }}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-primary/[0.06] hover:text-primary"
                   >
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <s.Icon className="h-4 w-4" />
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-border shadow-sm overflow-hidden">
+                      <PlatformLogo platform={s.platform} variant="mark" className="h-5 w-auto" />
                     </span>
                     {s.label}
                   </Link>
                 ))}
-                <Link
-                  to="/services"
-                  onClick={() => { setOpen(false); setMobileServicesOpen(false); }}
-                  className="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-primary/[0.06]"
-                >
-                  View all services →
-                </Link>
               </div>
             </div>
 

@@ -3,22 +3,18 @@ import { ArrowLeft, ArrowRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SignaturePad, PLATFORMS, type PlatformKey, type Branch } from "./shared";
-
-const PLATFORM_TITLE: Record<PlatformKey, string> = {
-  walmart: "Walmart Service Agreement",
-  tiktok: "TikTok Shop Service Agreement",
-  ebay: "eBay Service Agreement",
-};
-
-const PLATFORM_LABEL: Record<PlatformKey, string> = {
-  walmart: "Walmart Marketplace",
-  tiktok: "TikTok Shop",
-  ebay: "eBay",
-};
+import {
+  SignaturePad,
+  PLATFORMS,
+  PLATFORM_FULL_NAME,
+  platformsLabel,
+  totalForPlatforms,
+  type PlatformKey,
+  type Branch,
+} from "./shared";
 
 export function ContractStep({
-  platform,
+  platforms,
   branch,
   clientName,
   setClientName,
@@ -31,7 +27,7 @@ export function ContractStep({
   onBack,
   onContinue,
 }: {
-  platform: PlatformKey;
+  platforms: PlatformKey[];
   branch: Branch;
   clientName: string;
   setClientName: (v: string) => void;
@@ -44,10 +40,16 @@ export function ContractStep({
   onBack: () => void;
   onContinue: () => void;
 }) {
-  const p = PLATFORMS[platform];
   const [today] = useState(() =>
     new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
   );
+  const total = totalForPlatforms(platforms);
+  const platformsText = platformsLabel(platforms);
+  const title =
+    platforms.length === 1
+      ? `${PLATFORM_FULL_NAME[platforms[0]]} Service Agreement`
+      : "Marketplace Operations Service Agreement";
+  const displayName = clientName.trim().length > 0 ? clientName : "[Your Full Legal Name]";
   const canContinue = clientName.trim().length >= 3 && !!signature && agreed1 && agreed2;
 
   return (
@@ -59,26 +61,37 @@ export function ContractStep({
       <div className="rounded-3xl border border-border bg-white shadow-[0_10px_40px_-20px_rgba(15,23,42,0.2)] overflow-hidden">
         <div className="px-6 md:px-8 pt-6 pb-4 border-b border-border bg-gradient-to-br from-primary/[0.04] to-transparent">
           <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary">Ray Ecommerce · Ray Advertising</div>
-          <h2 className="mt-1 text-xl md:text-2xl font-bold tracking-tight">{PLATFORM_TITLE[platform]}</h2>
+          <h2 className="mt-1 text-xl md:text-2xl font-bold tracking-tight">{title}</h2>
           <div className="mt-2 grid sm:grid-cols-3 gap-2 text-xs text-muted-foreground">
             <div><span className="font-semibold text-foreground">Effective Date:</span> {today}</div>
-            <div><span className="font-semibold text-foreground">Service:</span> {p.name}</div>
-            <div><span className="font-semibold text-foreground">Fee:</span> ${p.price}</div>
+            <div><span className="font-semibold text-foreground">Platforms:</span> {platformsText}</div>
+            <div><span className="font-semibold text-foreground">Total Fee:</span> ${total.toFixed(2)}</div>
+          </div>
+          <div className="mt-3 rounded-xl border border-border bg-white/70 p-3">
+            <div className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">Selected Packages</div>
+            <ul className="mt-1 space-y-0.5 text-xs">
+              {platforms.map((k) => (
+                <li key={k} className="flex items-center justify-between">
+                  <span className="font-medium text-foreground">{PLATFORM_FULL_NAME[k]} Package</span>
+                  <span className="font-semibold tabular-nums">${PLATFORMS[k].price}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
         <div className="max-h-[420px] overflow-y-auto px-6 md:px-8 py-5 text-sm leading-6 text-foreground/85 space-y-4">
           <Section n="1" title="Scope of Services">
             Ray Ecommerce provides marketplace setup and/or management support for the selected{" "}
-            <strong>{PLATFORM_LABEL[platform]}</strong> package, including account readiness review, seller account
-            support, product research guidance, listing support, supplier coordination, fulfillment support, customer
-            communication guidance, performance tracking, and growth reporting.
+            <strong>{platformsText}</strong> package{platforms.length > 1 ? "s" : ""}, including account
+            readiness review, seller account support, product research guidance, listing support, supplier
+            coordination, fulfillment support, customer communication guidance, performance tracking, and growth
+            reporting.
           </Section>
           <Section n="2" title="Client Responsibilities">
-            Client (<strong>{clientName || "[Your Full Legal Name]"}</strong>) must provide accurate personal,
-            business, tax, bank, account access, and document information. Client is responsible for platform
-            compliance, truthful documentation, product ownership or supplier authorization, and timely
-            communication.
+            Client (<strong>{displayName}</strong>) must provide accurate personal, business, tax, bank, account
+            access, and document information. Client is responsible for platform compliance, truthful
+            documentation, product ownership or supplier authorization, and timely communication.
           </Section>
           <Section n="3" title="Marketplace Compliance">
             Client understands that Walmart Marketplace, TikTok Shop, and eBay each have their own approval,
@@ -86,39 +99,51 @@ export function ContractStep({
             platform approval, sales volume, profit, or account reinstatement.
           </Section>
           <Section n="4" title="Service Fee">
-            The service fee for the selected package is <strong>${p.price} USD</strong> ({p.name}). Fees for other
-            packages: Walmart $499, TikTok Shop $299, eBay $99.
+            The package fee{platforms.length > 1 ? "s" : ""} shown above {platforms.length > 1 ? "are" : "is"}{" "}
+            payable in advance to begin onboarding. This fee covers setup and onboarding work and is
+            non-refundable once services have commenced, except where required by law.
           </Section>
-          {branch === "existing" ? (
-            <Section n="5" title="Access Authorization">
-              Client authorizes Ray Ecommerce to access the selected {PLATFORM_LABEL[platform]} seller account
-              <strong> only for setup, management, optimization, and support work</strong> related to this
-              engagement. Access may be revoked in writing at any time.
-            </Section>
-          ) : (
-            <Section n="5" title="Document Authorization">
-              Client authorizes Ray Ecommerce to use the submitted documents and personal/business details
-              <strong> only for seller account creation, onboarding, verification support, and service delivery</strong>.
-              Documents will not be repurposed or shared outside the scope of this engagement.
-            </Section>
-          )}
-          <Section n="6" title="Payment Terms">
-            Service payment is due before active onboarding begins. Payment confirms the onboarding request and
-            reserves the service setup process.
+          <Section n="5" title="Profit Sharing (where applicable)">
+            Where the parties agree to ongoing management on a profit-sharing basis, Net Profit — calculated
+            after marketplace fees, product and supplier costs, advertising spend, software and tools, shipping,
+            and other agreed operating expenses — is shared <strong>60% to the Client</strong> and{" "}
+            <strong>40% to Ray Ecommerce</strong>, unless otherwise agreed in writing.
           </Section>
-          <Section n="7" title="No Guarantee Clause">
-            Ray Ecommerce provides professional marketplace support, but does not guarantee approval, sales,
-            profit, ranking, or platform decisions. Marketplace outcomes depend on product selection, supplier
-            pricing, customer demand, competition, and ongoing account status.
+          <Section n="6" title="Account Access & Ownership">
+            Client grants Ray Ecommerce delegated user access to operate the store. Client remains the sole and
+            exclusive owner of all accounts, listings, brands, and business assets. Ray Ecommerce will not change
+            banking or payout details, move funds, or close any account without the Client's separate written
+            approval. Client may revoke access by giving 30 days' written notice that specifies the effective
+            date.
           </Section>
-          <Section n="8" title="Confidentiality">
-            Both parties agree to keep confidential information shared during this engagement private and to use it
-            solely for the purpose of delivering the contracted services.
+          <Section n="7" title="Confidentiality">
+            Both parties protect each other's confidential information under the separate Mutual Non-Disclosure
+            Agreement, which forms part of this engagement.
           </Section>
-          <Section n="9" title="Signatures">
-            By signing below, Client acknowledges they have read, understood, and agreed to this Service Agreement
-            between <strong>{clientName || "[Your Full Legal Name]"}</strong> and <strong>Ray Ecommerce / Ray Advertising</strong>,
-            signed by a <strong>Ray Ecommerce Authorized Representative</strong>.
+          <Section n="8" title="Term & Termination">
+            This Agreement begins on the Effective Date and continues until terminated. Either party may
+            terminate with 30 days' written notice. Fees for work already performed remain payable.
+          </Section>
+          <Section n="9" title="No Guarantee & Limitation of Liability">
+            Services are provided on a best-effort basis with no guarantee of specific results. Ray Ecommerce's
+            total liability is limited to the fees paid for the services. Neither party is liable for indirect or
+            consequential losses.
+          </Section>
+          <Section n="10" title="Governing Law">
+            This Agreement is governed by the laws of the State of California, USA, with exclusive jurisdiction
+            in the state and federal courts of Shasta County, California.
+          </Section>
+          <Section n="11" title="Entire Agreement">
+            This Agreement, together with the Mutual NDA and any written addenda, is the entire agreement
+            between the parties and supersedes any prior oral or written understandings.
+          </Section>
+          <Section n="12" title="Acceptance">
+            By typing your full legal name, drawing your signature, and checking the boxes below, you (
+            <strong>{displayName}</strong>) agree to be bound by this Agreement with{" "}
+            <strong>Ray Ecommerce / Ray Advertising</strong>{branch === "existing"
+              ? " and authorize delegated access to the selected store(s) listed above"
+              : " and authorize Ray Ecommerce to assist with the seller account creation outlined above"}
+            .
           </Section>
         </div>
       </div>

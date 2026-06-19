@@ -13,6 +13,7 @@ import { FreeSampleSection } from "@/components/site/FreeSampleSection";
 
 
 import { FinalCTA } from "@/components/site/FinalCTA";
+import { ApprovedSolutionProviderCard } from "@/components/site/TrustBadge";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -99,19 +100,11 @@ function Hero() {
               </Button>
             </div>
 
-            <div className="mt-8 flex items-center gap-5">
-              <div className="flex -space-x-2">
-                {["#3b82f6", "#f59e0b", "#10b981", "#8b5cf6"].map((c, i) => (
-                  <div key={i} className="h-8 w-8 rounded-full border-2 border-white shadow" style={{ background: `linear-gradient(135deg, ${c}, ${c}aa)` }} />
-                ))}
-              </div>
-              <div className="text-xs">
-                <div className="flex items-center gap-1 text-spark">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-current" />)}
-                  <span className="ml-1 font-bold text-foreground">4.9/5</span>
-                </div>
-                <div className="text-muted-foreground">Trusted by 500+ marketplace sellers</div>
-              </div>
+            <div className="mt-8">
+              <ApprovedSolutionProviderCard />
+              <p className="mt-3 text-xs md:text-[13px] text-muted-foreground max-w-xl leading-snug">
+                Structured marketplace setup, management support, and reporting — with account ownership remaining with the seller.
+              </p>
             </div>
           </div>
           <div className="relative">

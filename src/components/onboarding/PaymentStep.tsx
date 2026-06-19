@@ -2,10 +2,17 @@ import { useState } from "react";
 import { ArrowLeft, CreditCard, Lock, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, PLATFORMS, type Branch, type PlatformKey } from "./shared";
+import {
+  Field,
+  PLATFORMS,
+  PLATFORM_FULL_NAME,
+  totalForPlatforms,
+  type Branch,
+  type PlatformKey,
+} from "./shared";
 
 export function PaymentStep({
-  platform,
+  platforms,
   branch,
   clientName,
   clientEmail,
@@ -13,7 +20,7 @@ export function PaymentStep({
   onBack,
   onComplete,
 }: {
-  platform: PlatformKey;
+  platforms: PlatformKey[];
   branch: Branch;
   clientName: string;
   clientEmail: string;
@@ -21,7 +28,11 @@ export function PaymentStep({
   onBack: () => void;
   onComplete: () => void;
 }) {
-  const p = PLATFORMS[platform];
+  const total = totalForPlatforms(platforms);
+  const headline =
+    platforms.length === 1
+      ? PLATFORM_FULL_NAME[platforms[0]]
+      : `${platforms.length} Marketplace Packages`;
   const [pay, setPay] = useState({ method: "card", cardName: clientName, cardNumber: "", exp: "", cvc: "" });
   const [processing, setProcessing] = useState(false);
 
@@ -44,7 +55,7 @@ export function PaymentStep({
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/80">Order Summary</div>
-            <div className="mt-1 text-xl font-bold">{p.name}</div>
+            <div className="mt-1 text-xl font-bold">{headline}</div>
             <div className="text-sm text-white/85 mt-0.5">
               {branch === "existing" ? "Existing seller account onboarding" : "New seller account creation & onboarding"}
             </div>
@@ -54,13 +65,20 @@ export function PaymentStep({
         <div className="mt-5 border-t border-white/20 pt-4 space-y-1.5 text-sm">
           <Row label="Customer" value={clientName || "—"} />
           <Row label="Email" value={clientEmail || "—"} />
-          <Row label="Service" value={p.name} />
           {fulfillmentLabel && <Row label="Fulfillment Process" value={fulfillmentLabel} />}
-          <Row label="Setup fee" value="Included" />
+        </div>
+        <div className="mt-4 border-t border-white/20 pt-4 space-y-1.5 text-sm">
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">Selected Packages</div>
+          {platforms.map((k) => (
+            <div key={k} className="flex items-center justify-between text-white">
+              <span className="text-white/90">{PLATFORM_FULL_NAME[k]} Package</span>
+              <span className="font-semibold tabular-nums">${PLATFORMS[k].price.toFixed(2)}</span>
+            </div>
+          ))}
         </div>
         <div className="mt-4 flex items-baseline justify-between border-t border-white/20 pt-4">
           <div className="text-sm">Total due today</div>
-          <div className="text-4xl font-bold">${p.price.toFixed(2)}</div>
+          <div className="text-4xl font-bold tabular-nums">${total.toFixed(2)}</div>
         </div>
       </div>
 
@@ -110,12 +128,12 @@ export function PaymentStep({
         )}
         {pay.method === "paypal" && (
           <div className="rounded-2xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
-            You'll be redirected to PayPal to securely complete your ${p.price.toFixed(2)} payment after submission.
+            You'll be redirected to PayPal to securely complete your ${total.toFixed(2)} payment after submission.
           </div>
         )}
         {pay.method === "bank" && (
           <div className="rounded-2xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
-            Bank transfer instructions for ${p.price.toFixed(2)} will be emailed to{" "}
+            Bank transfer instructions for ${total.toFixed(2)} will be emailed to{" "}
             <span className="font-semibold text-foreground">{clientEmail || "your email"}</span> after submission.
           </div>
         )}
@@ -133,7 +151,7 @@ export function PaymentStep({
             disabled={processing}
             className="flex-1 brand-gradient text-white rounded-full btn-glow"
           >
-            {processing ? "Processing…" : `Pay $${p.price.toFixed(2)} & Start Onboarding`}
+            {processing ? "Processing…" : `Pay $${total.toFixed(2)} & Start Onboarding`}
           </Button>
         </div>
       </div>

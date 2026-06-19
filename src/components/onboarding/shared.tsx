@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CheckCircle2, ChevronDown, UploadCloud, X, ShieldCheck, FileText } from "lucide-react";
+import { CheckCircle2, ChevronDown, UploadCloud, X, ShieldCheck, FileText, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -30,6 +30,45 @@ export const PLATFORMS: Record<PlatformKey, { name: string; price: number; tagli
     ring: "ring-[#0064d2]/30",
   },
 };
+
+export const PLATFORM_FULL_NAME: Record<PlatformKey, string> = {
+  walmart: "Walmart Marketplace",
+  tiktok: "TikTok Shop",
+  ebay: "eBay",
+};
+
+export const PLATFORM_STORE_LABEL: Record<PlatformKey, string> = {
+  walmart: "Walmart Marketplace store",
+  tiktok: "TikTok Shop store",
+  ebay: "eBay store",
+};
+
+export const PLATFORM_LOGIN_LABEL: Record<PlatformKey, { email: string; password: string }> = {
+  walmart: {
+    email: "Walmart Seller Center login email",
+    password: "Walmart Seller Center login password",
+  },
+  tiktok: {
+    email: "TikTok Shop Seller Center login email",
+    password: "TikTok Shop Seller Center login password",
+  },
+  ebay: {
+    email: "eBay Seller Hub login email",
+    password: "eBay Seller Hub login password",
+  },
+};
+
+export function totalForPlatforms(platforms: PlatformKey[]): number {
+  return platforms.reduce((sum, k) => sum + PLATFORMS[k].price, 0);
+}
+
+export function platformsLabel(platforms: PlatformKey[]): string {
+  const names = platforms.map((p) => PLATFORM_FULL_NAME[p]);
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+}
 
 /* ---------- Stepper ---------- */
 export function Stepper({ current, steps }: { current: number; steps: string[] }) {
@@ -113,6 +152,49 @@ export function TextField({
   return (
     <Field label={label} hint={hint} required={required} full={full}>
       <Input type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} required={required} />
+    </Field>
+  );
+}
+
+export function PasswordField({
+  label,
+  value,
+  onChange,
+  required,
+  hint,
+  full,
+  placeholder = "Enter password",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+  hint?: string;
+  full?: boolean;
+  placeholder?: string;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <Field label={label} hint={hint} required={required} full={full}>
+      <div className="relative">
+        <Input
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+          placeholder={placeholder}
+          autoComplete="new-password"
+          className="pr-10"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          aria-label={show ? "Hide password" : "Show password"}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-primary hover:bg-primary/[0.06] transition-colors"
+        >
+          {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
     </Field>
   );
 }

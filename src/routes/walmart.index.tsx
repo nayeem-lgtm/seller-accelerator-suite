@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Store, Search, ClipboardList, Truck, MessageCircle, LineChart, ShieldCheck, Sparkles, BarChart3, Package, Layers } from "lucide-react";
+import { ArrowRight, Store, Search, ClipboardList, Truck, MessageCircle, LineChart, ShieldCheck, Sparkles, BarChart3, Package, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Section, Disclaimer } from "@/components/site/Section";
+import { Section } from "@/components/site/Section";
 import { PricingSection } from "@/components/site/PricingSection";
 
 import { FinalCTA } from "@/components/site/FinalCTA";
@@ -102,7 +102,7 @@ function WalmartPage() {
               <span className="text-primary">→</span>
               <span>Your Account</span>
               <span className="text-primary">→</span>
-              <span>Profit Review</span>
+              <span>Net Profit Review</span>
             </p>
           </div>
         </div>
@@ -117,16 +117,6 @@ function WalmartPage() {
       </Section>
 
       <PricingSection />
-      
-
-      <Section>
-        <Disclaimer>
-          Ray Ecommerce does not guarantee Walmart Marketplace approval, sales, revenue, rankings, or profit. Results vary based on product selection, supplier pricing, marketplace rules, customer demand, competition, and operational factors.
-        </Disclaimer>
-        <div className="mt-6 flex justify-center gap-3">
-          <Button asChild className="rounded-full brand-gradient text-white btn-glow"><Link to="/seller-onboarding">Start Walmart Store <CheckCircle2 className="ml-1 h-4 w-4" /></Link></Button>
-        </div>
-      </Section>
 
       <FinalCTA />
     </>
