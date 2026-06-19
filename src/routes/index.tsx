@@ -13,6 +13,7 @@ import { FreeSampleSection } from "@/components/site/FreeSampleSection";
 
 
 import { FinalCTA } from "@/components/site/FinalCTA";
+import { ApprovedSolutionProviderCard } from "@/components/site/TrustBadge";
 
 export const Route = createFileRoute("/")({
   head: () => ({
