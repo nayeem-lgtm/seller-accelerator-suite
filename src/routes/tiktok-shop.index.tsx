@@ -75,14 +75,6 @@ function TikTokPage() {
       </Section>
 
       <PricingSection />
-      
-      
-
-      <Section>
-        <Disclaimer>
-          Ray Ecommerce does not guarantee TikTok Shop approval, viral sales, follower growth, revenue, or profit. Results vary based on product selection, content quality, supplier pricing, marketplace rules, demand, competition, and operational factors.
-        </Disclaimer>
-      </Section>
 
       <FinalCTA />
     </>

@@ -67,8 +67,22 @@ function EbayPage() {
       </Section>
 
       <Section eyebrow="Money Flow" title="eBay Revenue Flow">
-        <div className="rounded-3xl glass-card p-6 md:p-8 text-center">
-          <p className="text-sm text-muted-foreground">Supplier → <b>eBay Store</b> → Customer Purchase → eBay Deposit → Your Account → Profit Review</p>
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-2xl border border-border bg-white px-6 py-5 shadow-sm md:px-10 md:py-6">
+            <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-muted-foreground md:text-base">
+              <span>Supplier</span>
+              <span className="text-primary">→</span>
+              <span className="font-semibold text-foreground">eBay Store</span>
+              <span className="text-primary">→</span>
+              <span>Customer Purchase</span>
+              <span className="text-primary">→</span>
+              <span>eBay Payout</span>
+              <span className="text-primary">→</span>
+              <span>Your Account</span>
+              <span className="text-primary">→</span>
+              <span>Net Profit Review</span>
+            </p>
+          </div>
         </div>
       </Section>
 
@@ -81,14 +95,7 @@ function EbayPage() {
       </Section>
 
       <PricingSection />
-      
-      
 
-      <Section>
-        <Disclaimer>
-          Ray Ecommerce does not guarantee eBay approval, sales, revenue, marketplace performance, or profit. Results vary based on product selection, supplier pricing, marketplace rules, demand, competition, and operational factors.
-        </Disclaimer>
-      </Section>
       <FinalCTA />
     </>
   );
