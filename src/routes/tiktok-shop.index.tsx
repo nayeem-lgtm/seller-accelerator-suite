@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, Video, Search, ClipboardList, Truck, MessageCircle, LineChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Section, Disclaimer } from "@/components/site/Section";
+import { Section } from "@/components/site/Section";
 import { PricingSection } from "@/components/site/PricingSection";
 
 
@@ -54,6 +54,26 @@ function TikTokPage() {
       <HowItWorks steps={tiktokSteps} />
 
       <PlatformSalesBreakdown data={tiktokBreakdown} />
+
+      <Section eyebrow="Money Flow" title="TikTok Shop Revenue Flow">
+        <div className="mx-auto max-w-4xl">
+          <div className="rounded-2xl border border-border bg-white px-6 py-5 shadow-sm md:px-10 md:py-6">
+            <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-muted-foreground md:text-base">
+              <span>Supplier</span>
+              <span className="text-primary">→</span>
+              <span className="font-semibold text-foreground">TikTok Shop Store</span>
+              <span className="text-primary">→</span>
+              <span>Customer Purchase</span>
+              <span className="text-primary">→</span>
+              <span>TikTok Shop Deposit</span>
+              <span className="text-primary">→</span>
+              <span>Your Account</span>
+              <span className="text-primary">→</span>
+              <span>Net Profit Review</span>
+            </p>
+          </div>
+        </div>
+      </Section>
 
       <Section eyebrow="Overview" title="A Marketplace Built For Discovery">
         <FeatureGrid items={[

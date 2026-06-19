@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Store, Search, ClipboardList, Truck, MessageCircle, LineChart, ShieldCheck, Sparkles, BarChart3, Package, Layers } from "lucide-react";
+import { ArrowRight, Store, Search, ClipboardList, Truck, MessageCircle, LineChart, ShieldCheck, Sparkles, BarChart3, Package, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Section, Disclaimer } from "@/components/site/Section";
+import { Section } from "@/components/site/Section";
 import { PricingSection } from "@/components/site/PricingSection";
 
 import { FinalCTA } from "@/components/site/FinalCTA";
