@@ -1,9 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Mail, Sparkles, Store, ShoppingBag, Tv } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Mail, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Stepper, PLATFORMS, type PlatformKey, type Branch } from "@/components/onboarding/shared";
-import { ExistingAccountForm, AccountCreationForm } from "@/components/onboarding/PlatformForms";
+import {
+  Stepper,
+  PLATFORMS,
+  PLATFORM_FULL_NAME,
+  totalForPlatforms,
+  type PlatformKey,
+  type Branch,
+} from "@/components/onboarding/shared";
+import {
+  MultiPlatformExistingForm,
+  AccountCreationForm,
+} from "@/components/onboarding/PlatformForms";
 import { ContractStep } from "@/components/onboarding/ContractStep";
 import { PaymentStep } from "@/components/onboarding/PaymentStep";
 import { PlatformLogo } from "@/components/site/PlatformLogo";
@@ -34,18 +44,19 @@ type StageKey = "package" | "branch" | "details" | "contract" | "payment" | "don
 
 const STEPS = ["Package", "Account", "Credentials", "Contract", "Payment"];
 
-const PLATFORM_LIST: { k: PlatformKey; Icon: typeof Store }[] = [
-  { k: "walmart", Icon: Store },
-  { k: "tiktok", Icon: Tv },
-  { k: "ebay", Icon: ShoppingBag },
-];
+const PLATFORM_ORDER: PlatformKey[] = ["walmart", "tiktok", "ebay"];
 
 function Onboarding() {
   const navigate = useNavigate();
   const [stage, setStage] = useState<StageKey>("package");
-  const [platform, setPlatform] = useState<PlatformKey | null>(null);
+  const [platforms, setPlatforms] = useState<PlatformKey[]>([]);
   const [branch, setBranch] = useState<Branch | null>(null);
+  // Single shared form (used for branch="create" / single-platform existing legacy keys)
   const [form, setForm] = useState<Record<string, string>>({});
+  // Per-platform existing-account form state
+  const [platformForms, setPlatformForms] = useState<Record<string, Record<string, string>>>({});
+  // Per-platform authorization checkbox state
+  const [authorized, setAuthorized] = useState<Record<string, boolean>>({});
   const [clientName, setClientName] = useState("");
   const [signature, setSignature] = useState<string | null>(null);
   const [agreed1, setAgreed1] = useState(false);
@@ -58,7 +69,7 @@ function Onboarding() {
       if (jump) {
         const parsed = JSON.parse(jump) as { platform?: PlatformKey };
         if (parsed.platform && PLATFORMS[parsed.platform]) {
-          setPlatform(parsed.platform);
+          setPlatforms([parsed.platform]);
           setBranch("existing");
           setStage("payment");
           sessionStorage.removeItem("ray_jump_to_payment");
@@ -72,7 +83,7 @@ function Onboarding() {
       const matchKey = (Object.entries(PLATFORMS) as [PlatformKey, typeof PLATFORMS[PlatformKey]][])
         .find(([, p]) => p.name === stored)?.[0];
       if (matchKey) {
-        setPlatform(matchKey);
+        setPlatforms([matchKey]);
         setStage("branch");
       }
       sessionStorage.removeItem("ray_selected_plan");
@@ -80,6 +91,17 @@ function Onboarding() {
   }, []);
 
   const setField = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const setPlatformField = (platform: PlatformKey, k: string, v: string) =>
+    setPlatformForms((all) => ({ ...all, [platform]: { ...(all[platform] || {}), [k]: v } }));
+  const setPlatformAuthorized = (platform: PlatformKey, v: boolean) =>
+    setAuthorized((a) => ({ ...a, [platform]: v }));
+
+  const togglePlatform = (k: PlatformKey) => {
+    setPlatforms((prev) => (prev.includes(k) ? prev.filter((p) => p !== k) : [...prev, k]));
+  };
+
+  const primaryPlatform: PlatformKey | null = platforms[0] ?? null;
+  const total = totalForPlatforms(platforms);
 
   const stepIndex = useMemo(() => {
     switch (stage) {
@@ -92,9 +114,24 @@ function Onboarding() {
     }
   }, [stage]);
 
-  if (stage === "done" && platform && branch) {
-    return <Confirmation platform={platform} branch={branch} navigate={navigate} />;
+  if (stage === "done" && platforms.length > 0 && branch) {
+    return <Confirmation platforms={platforms} branch={branch} navigate={navigate} />;
   }
+
+  // Validate that the existing-account credentials step is complete.
+  const existingDetailsValid =
+    branch === "existing" &&
+    platforms.length > 0 &&
+    platforms.every((p) => {
+      const s = platformForms[p] || {};
+      return (
+        !!s.loginEmail &&
+        !!s.loginPassword &&
+        !!s.displayName &&
+        !!s.accountStatus &&
+        !!authorized[p]
+      );
+    });
 
   return (
     <section className="relative py-12 md:py-20 overflow-hidden">
@@ -108,7 +145,10 @@ function Onboarding() {
         <div className="text-xs font-bold tracking-[0.2em] uppercase text-primary">Seller Onboarding</div>
         <h1 className="mt-2 text-3xl md:text-5xl font-bold tracking-tight">
           {stage === "package" && "Choose Your Marketplace"}
-          {stage === "branch" && platform && `Get Started with ${PLATFORMS[platform].name}`}
+          {stage === "branch" && primaryPlatform &&
+            (platforms.length === 1
+              ? `Get Started with ${PLATFORMS[primaryPlatform].name}`
+              : `Get Started with ${platforms.length} Marketplaces`)}
 
           {stage === "details" && branch === "existing" && "Connect Your Existing Seller Account"}
           {stage === "details" && branch === "create" && "Seller Account Creation Details"}
@@ -132,15 +172,16 @@ function Onboarding() {
         <div className="rounded-3xl border border-border bg-white/80 backdrop-blur-sm p-6 md:p-8 shadow-[0_10px_40px_-20px_rgba(15,23,42,0.18)]">
           {/* STAGE: PACKAGE */}
           {stage === "package" && (
-            <div className="grid md:grid-cols-3 gap-5">
-              {PLATFORM_LIST.map(({ k }) => {
+            <div className="space-y-6">
+              <div className="grid md:grid-cols-3 gap-5">
+              {PLATFORM_ORDER.map((k) => {
                 const p = PLATFORMS[k];
-                const selected = platform === k;
+                const selected = platforms.includes(k);
                 return (
                   <button
                     key={k}
                     type="button"
-                    onClick={() => setPlatform(k)}
+                    onClick={() => togglePlatform(k)}
                     className={`group relative text-left rounded-2xl border-2 p-6 transition overflow-hidden ${
                       selected
                         ? "border-primary bg-primary/[0.04] shadow-[0_0_0_4px_rgba(59,130,246,0.1)]"
@@ -152,7 +193,13 @@ function Onboarding() {
                       <div className="inline-flex items-center justify-center rounded-xl bg-white border border-border px-3 py-2 shadow-sm">
                         <PlatformLogo platform={k} className="h-6 w-auto" />
                       </div>
-                      {selected && <CheckCircle2 className="h-6 w-6 text-primary" />}
+                      <div
+                        className={`h-6 w-6 rounded-md border-2 grid place-items-center transition ${
+                          selected ? "border-primary bg-primary text-white" : "border-border bg-white text-transparent"
+                        }`}
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                      </div>
                     </div>
                     <div className="mt-4 font-bold text-lg">{p.name}</div>
                     <div className="mt-1 text-3xl font-bold text-foreground">
@@ -165,30 +212,62 @@ function Onboarding() {
                         selected ? "text-primary" : "text-foreground/70 group-hover:text-primary"
                       }`}
                     >
-                      Choose {p.name}
+                      {selected ? `${p.name} selected` : `Choose ${p.name}`}
                       <ArrowRight className="h-4 w-4" />
                     </div>
 
                   </button>
                 );
               })}
-              <div className="md:col-span-3 flex justify-end">
-                <Button
-                  disabled={!platform}
-                  onClick={() => setStage("branch")}
-                  className="brand-gradient text-white rounded-full btn-glow px-6"
-                >
-                  Continue <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
+              </div>
+
+              {/* Selected summary */}
+              <div className="rounded-2xl border border-border bg-white p-5 md:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold tracking-[0.2em] uppercase text-primary">Selected Packages</div>
+                    {platforms.length === 0 ? (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Select one or more marketplace packages to continue. You can combine packages.
+                      </p>
+                    ) : (
+                      <ul className="mt-3 space-y-1.5 text-sm">
+                        {platforms.map((k) => (
+                          <li key={k} className="flex items-center justify-between gap-4">
+                            <span className="font-medium text-foreground">{PLATFORM_FULL_NAME[k]}</span>
+                            <span className="font-semibold tabular-nums">${PLATFORMS[k].price}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Total</div>
+                    <div className="text-2xl md:text-3xl font-bold tabular-nums">${total}</div>
+                  </div>
+                </div>
+                <div className="mt-5 flex justify-end">
+                  <Button
+                    disabled={platforms.length === 0}
+                    onClick={() => setStage("branch")}
+                    className="brand-gradient text-white rounded-full btn-glow px-6"
+                  >
+                    Continue <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}
 
           {/* STAGE: BRANCH */}
-          {stage === "branch" && platform && (
+          {stage === "branch" && primaryPlatform && (
             <div className="space-y-5">
               <div className="text-base font-semibold">
-                Do you already have an active seller account for {PLATFORMS[platform].name}?
+                Do you already have an active seller account for{" "}
+                {platforms.length === 1
+                  ? PLATFORMS[primaryPlatform].name
+                  : `${platforms.length} selected marketplaces`}
+                ?
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
@@ -216,13 +295,20 @@ function Onboarding() {
                   );
                 })}
               </div>
+              {branch === "create" && platforms.length > 1 && (
+                <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900">
+                  Account creation is platform-specific. We'll start the creation flow with{" "}
+                  <strong>{PLATFORM_FULL_NAME[primaryPlatform]}</strong>, then coordinate the remaining selected
+                  marketplaces with you after onboarding.
+                </div>
+              )}
               <div className="flex gap-3 pt-2">
                 <Button variant="outline" onClick={() => setStage("package")} className="rounded-full">
                   <ArrowLeft className="mr-1 h-4 w-4" /> Back
                 </Button>
                 <Button
                   disabled={!branch}
-                  onClick={() => { setForm({}); setStage("details"); }}
+                  onClick={() => { setStage("details"); }}
                   className="flex-1 brand-gradient text-white rounded-full btn-glow"
                 >
                   Continue <ArrowRight className="ml-1 h-4 w-4" />
@@ -232,12 +318,18 @@ function Onboarding() {
           )}
 
           {/* STAGE: DETAILS */}
-          {stage === "details" && platform && branch && (
+          {stage === "details" && primaryPlatform && branch && (
             <div className="space-y-6">
               {branch === "existing" ? (
-                <ExistingAccountForm platform={platform} state={form} set={setField} />
+                <MultiPlatformExistingForm
+                  platforms={platforms}
+                  forms={platformForms}
+                  setField={setPlatformField}
+                  authorized={authorized}
+                  setAuthorized={setPlatformAuthorized}
+                />
               ) : (
-                <AccountCreationForm platform={platform} state={form} set={setField} />
+                <AccountCreationForm platform={primaryPlatform} state={form} set={setField} />
               )}
 
               <div className="flex gap-3 pt-2">
@@ -245,6 +337,7 @@ function Onboarding() {
                   <ArrowLeft className="mr-1 h-4 w-4" /> Back
                 </Button>
                 <Button
+                  disabled={branch === "existing" && !existingDetailsValid}
                   onClick={() => {
                     setClientName(form.fullName || clientName);
                     setStage("contract");
@@ -258,9 +351,9 @@ function Onboarding() {
           )}
 
           {/* STAGE: CONTRACT */}
-          {stage === "contract" && platform && branch && (
+          {stage === "contract" && platforms.length > 0 && branch && (
             <ContractStep
-              platform={platform}
+              platforms={platforms}
               branch={branch}
               clientName={clientName}
               setClientName={setClientName}
@@ -276,12 +369,17 @@ function Onboarding() {
           )}
 
           {/* STAGE: PAYMENT */}
-          {stage === "payment" && platform && branch && (
+          {stage === "payment" && platforms.length > 0 && branch && (
             <PaymentStep
-              platform={platform}
+              platforms={platforms}
               branch={branch}
               clientName={clientName}
-              clientEmail={form.email || form.loginEmail || ""}
+              clientEmail={
+                form.email ||
+                form.loginEmail ||
+                platformForms[platforms[0]]?.loginEmail ||
+                ""
+              }
               onBack={() => setStage("contract")}
               onComplete={() => setStage("done")}
             />
@@ -293,15 +391,16 @@ function Onboarding() {
 }
 
 function Confirmation({
-  platform,
+  platforms,
   branch,
   navigate,
 }: {
-  platform: PlatformKey;
+  platforms: PlatformKey[];
   branch: Branch;
   navigate: ReturnType<typeof useNavigate>;
 }) {
-  const p = PLATFORMS[platform];
+  const total = totalForPlatforms(platforms);
+  const packagesLabel = platforms.map((k) => PLATFORM_FULL_NAME[k]).join(", ");
   return (
     <section className="py-20">
       <div className="mx-auto max-w-2xl px-4 text-center">
@@ -314,12 +413,26 @@ function Confirmation({
         </p>
 
         <div className="mt-8 rounded-2xl border border-border bg-white p-6 text-left shadow-[0_8px_30px_-12px_rgba(15,23,42,0.1)]">
-          <div className="grid sm:grid-cols-2 gap-4 text-sm">
-            <Info label="Selected package" value={p.name} />
-            <Info label="Amount paid" value={`$${p.price.toFixed(2)}`} />
+          <div className="space-y-3 text-sm">
+            <div>
+              <div className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">Selected packages</div>
+              <ul className="mt-1.5 space-y-1">
+                {platforms.map((k) => (
+                  <li key={k} className="flex items-center justify-between gap-3 font-semibold">
+                    <span>{PLATFORM_FULL_NAME[k]}</span>
+                    <span className="tabular-nums">${PLATFORMS[k].price.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 pt-3 border-t border-border flex items-center justify-between font-bold">
+                <span>Total paid</span>
+                <span className="tabular-nums">${total.toFixed(2)}</span>
+              </div>
+            </div>
             <Info label="Onboarding type" value={branch === "existing" ? "Existing seller account" : "Account creation support"} />
             <Info label="Next step" value="Ray Ecommerce will review your details and reach out within 1 business day." full />
           </div>
+          <div className="sr-only">{packagesLabel}</div>
         </div>
 
 
