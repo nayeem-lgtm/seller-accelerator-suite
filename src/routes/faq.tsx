@@ -115,8 +115,8 @@ const GROUPS: FaqGroup[] = [
     description: "Service plans, pricing, and payouts.",
     items: [
       {
-        q: "Where can I see the service plans?",
-        a: "You can view available plans on the Plans page. Each plan is designed to help sellers choose the right level of support based on their marketplace goals.",
+        q: "Who gets the payout from the marketplace account?",
+        a: "The marketplace payouts are sent directly to the account owner. Funds are deposited into the bank account or payment method linked to the seller account. Ray Ecommerce does not handle, receive, or have access to those funds and is unable to change the linked bank account or payment details.",
       },
       {
         q: "Are payments connected to the marketplace account?",
