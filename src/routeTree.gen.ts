@@ -29,12 +29,22 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WalmartIndexRouteImport } from './routes/walmart.index'
 import { Route as TiktokShopIndexRouteImport } from './routes/tiktok-shop.index'
 import { Route as EbayIndexRouteImport } from './routes/ebay.index'
 import { Route as BlogSlugRouteImport } from './routes/blog_.$slug'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as BlogStoriesSlugRouteImport } from './routes/blog_.stories.$slug'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
+import { Route as AuthenticatedAdminOnboardingRouteImport } from './routes/_authenticated/admin/onboarding'
+import { Route as AuthenticatedAdminContractsRouteImport } from './routes/_authenticated/admin/contracts'
+import { Route as AuthenticatedAdminContactsRouteImport } from './routes/_authenticated/admin/contacts'
+import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin/audit'
+import { Route as AuthenticatedAdminAiLeadsRouteImport } from './routes/_authenticated/admin/ai-leads'
 
 const WalmartAutomationRoute = WalmartAutomationRouteImport.update({
   id: '/walmart-automation',
@@ -136,6 +146,10 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -161,11 +175,61 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const BlogStoriesSlugRoute = BlogStoriesSlugRouteImport.update({
   id: '/blog_/stories/$slug',
   path: '/blog/stories/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminPaymentsRoute =
+  AuthenticatedAdminPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminOnboardingRoute =
+  AuthenticatedAdminOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminContractsRoute =
+  AuthenticatedAdminContractsRouteImport.update({
+    id: '/contracts',
+    path: '/contracts',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminContactsRoute =
+  AuthenticatedAdminContactsRouteImport.update({
+    id: '/contacts',
+    path: '/contacts',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminAiLeadsRoute =
+  AuthenticatedAdminAiLeadsRouteImport.update({
+    id: '/ai-leads',
+    path: '/ai-leads',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -189,11 +253,20 @@ export interface FileRoutesByFullPath {
   '/tiktok-shop': typeof TiktokShopRouteWithChildren
   '/walmart': typeof WalmartRouteWithChildren
   '/walmart-automation': typeof WalmartAutomationRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/ebay/': typeof EbayIndexRoute
   '/tiktok-shop/': typeof TiktokShopIndexRoute
   '/walmart/': typeof WalmartIndexRoute
+  '/admin/ai-leads': typeof AuthenticatedAdminAiLeadsRoute
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/contacts': typeof AuthenticatedAdminContactsRoute
+  '/admin/contracts': typeof AuthenticatedAdminContractsRoute
+  '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/blog/stories/$slug': typeof BlogStoriesSlugRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -218,11 +291,20 @@ export interface FileRoutesByTo {
   '/ebay': typeof EbayIndexRoute
   '/tiktok-shop': typeof TiktokShopIndexRoute
   '/walmart': typeof WalmartIndexRoute
+  '/admin/ai-leads': typeof AuthenticatedAdminAiLeadsRoute
+  '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/contacts': typeof AuthenticatedAdminContactsRoute
+  '/admin/contracts': typeof AuthenticatedAdminContractsRoute
+  '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/blog/stories/$slug': typeof BlogStoriesSlugRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
@@ -243,11 +325,20 @@ export interface FileRoutesById {
   '/tiktok-shop': typeof TiktokShopRouteWithChildren
   '/walmart': typeof WalmartRouteWithChildren
   '/walmart-automation': typeof WalmartAutomationRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/blog_/$slug': typeof BlogSlugRoute
   '/ebay/': typeof EbayIndexRoute
   '/tiktok-shop/': typeof TiktokShopIndexRoute
   '/walmart/': typeof WalmartIndexRoute
+  '/_authenticated/admin/ai-leads': typeof AuthenticatedAdminAiLeadsRoute
+  '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/_authenticated/admin/contacts': typeof AuthenticatedAdminContactsRoute
+  '/_authenticated/admin/contracts': typeof AuthenticatedAdminContractsRoute
+  '/_authenticated/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
+  '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/blog_/stories/$slug': typeof BlogStoriesSlugRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -273,11 +364,20 @@ export interface FileRouteTypes {
     | '/tiktok-shop'
     | '/walmart'
     | '/walmart-automation'
+    | '/admin'
     | '/blog/$slug'
     | '/ebay/'
     | '/tiktok-shop/'
     | '/walmart/'
+    | '/admin/ai-leads'
+    | '/admin/audit'
+    | '/admin/contacts'
+    | '/admin/contracts'
+    | '/admin/onboarding'
+    | '/admin/payments'
+    | '/admin/users'
     | '/blog/stories/$slug'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -302,10 +402,19 @@ export interface FileRouteTypes {
     | '/ebay'
     | '/tiktok-shop'
     | '/walmart'
+    | '/admin/ai-leads'
+    | '/admin/audit'
+    | '/admin/contacts'
+    | '/admin/contracts'
+    | '/admin/onboarding'
+    | '/admin/payments'
+    | '/admin/users'
     | '/blog/stories/$slug'
+    | '/admin'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/blog'
     | '/contact'
@@ -326,15 +435,25 @@ export interface FileRouteTypes {
     | '/tiktok-shop'
     | '/walmart'
     | '/walmart-automation'
+    | '/_authenticated/admin'
     | '/blog_/$slug'
     | '/ebay/'
     | '/tiktok-shop/'
     | '/walmart/'
+    | '/_authenticated/admin/ai-leads'
+    | '/_authenticated/admin/audit'
+    | '/_authenticated/admin/contacts'
+    | '/_authenticated/admin/contracts'
+    | '/_authenticated/admin/onboarding'
+    | '/_authenticated/admin/payments'
+    | '/_authenticated/admin/users'
     | '/blog_/stories/$slug'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   BlogRoute: typeof BlogRoute
   ContactRoute: typeof ContactRoute
@@ -501,6 +620,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -536,6 +662,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/blog_/stories/$slug': {
       id: '/blog_/stories/$slug'
       path: '/blog/stories/$slug'
@@ -543,8 +683,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogStoriesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/payments': {
+      id: '/_authenticated/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AuthenticatedAdminPaymentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/onboarding': {
+      id: '/_authenticated/admin/onboarding'
+      path: '/onboarding'
+      fullPath: '/admin/onboarding'
+      preLoaderRoute: typeof AuthenticatedAdminOnboardingRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/contracts': {
+      id: '/_authenticated/admin/contracts'
+      path: '/contracts'
+      fullPath: '/admin/contracts'
+      preLoaderRoute: typeof AuthenticatedAdminContractsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/contacts': {
+      id: '/_authenticated/admin/contacts'
+      path: '/contacts'
+      fullPath: '/admin/contacts'
+      preLoaderRoute: typeof AuthenticatedAdminContactsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/audit': {
+      id: '/_authenticated/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ai-leads': {
+      id: '/_authenticated/admin/ai-leads'
+      path: '/ai-leads'
+      fullPath: '/admin/ai-leads'
+      preLoaderRoute: typeof AuthenticatedAdminAiLeadsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
+
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAiLeadsRoute: typeof AuthenticatedAdminAiLeadsRoute
+  AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
+  AuthenticatedAdminContactsRoute: typeof AuthenticatedAdminContactsRoute
+  AuthenticatedAdminContractsRoute: typeof AuthenticatedAdminContractsRoute
+  AuthenticatedAdminOnboardingRoute: typeof AuthenticatedAdminOnboardingRoute
+  AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminAiLeadsRoute: AuthenticatedAdminAiLeadsRoute,
+    AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
+    AuthenticatedAdminContactsRoute: AuthenticatedAdminContactsRoute,
+    AuthenticatedAdminContractsRoute: AuthenticatedAdminContractsRoute,
+    AuthenticatedAdminOnboardingRoute: AuthenticatedAdminOnboardingRoute,
+    AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
+    AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface EbayRouteChildren {
   EbayIndexRoute: typeof EbayIndexRoute
@@ -581,6 +809,7 @@ const WalmartRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   BlogRoute: BlogRoute,
   ContactRoute: ContactRoute,
