@@ -12,15 +12,27 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export const STATUSES = ["new", "contacted", "in_progress", "completed", "rejected"] as const;
+export const STATUSES = [
+  "new",
+  "contacted",
+  "pending",
+  "active",
+  "in_progress",
+  "completed",
+  "rejected",
+  "archived",
+] as const;
 export type Status = (typeof STATUSES)[number];
 
 export const STATUS_COLOR: Record<Status, string> = {
   new: "bg-blue-100 text-blue-800",
   contacted: "bg-amber-100 text-amber-800",
+  pending: "bg-yellow-100 text-yellow-800",
+  active: "bg-indigo-100 text-indigo-800",
   in_progress: "bg-purple-100 text-purple-800",
   completed: "bg-emerald-100 text-emerald-800",
   rejected: "bg-rose-100 text-rose-800",
+  archived: "bg-slate-200 text-slate-700",
 };
 
 export function StatusBadge({ status }: { status: string }) {
@@ -39,7 +51,12 @@ export function StatusEditor({
   queryKey,
 }: {
   id: string;
-  table: "plan_selections" | "business_credentials" | "contracts" | "contact_queries" | "ai_leads";
+  table:
+    | "plan_selections"
+    | "business_credentials"
+    | "contracts"
+    | "contact_queries"
+    | "ai_leads";
   current: string;
   queryKey: string;
 }) {
