@@ -41,7 +41,7 @@ export function PoweredByRayTrust() {
     { Icon: Award, t: "Years of Industry Experience", d: "Backed by a marketing team with a long track record across digital growth and operations." },
     { Icon: Globe2, t: "Global Business Presence", d: "Ray Advertising supports brands across multiple markets and verticals worldwide." },
     { Icon: Headphones, t: "Professional Support", d: "Real people, structured processes, and dependable communication on every account." },
-    { Icon: Users, t: "Dedicated Team Assistance", d: "A specialized team handles strategy, operations, and ongoing client support." },
+    { Icon: Users, t: "Dedicated Team Manager", d: "A specialized team handles strategy, operations, and ongoing client support." },
   ];
   return (
     <section className="relative bg-white py-16 md:py-20">
