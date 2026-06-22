@@ -42,6 +42,33 @@ function IdUploads({ idType }: { idType: string }) {
 }
 
 /* =========================================================
+   Structured Business Address fields
+   ========================================================= */
+function BusinessAddressFields({
+  state,
+  set,
+}: {
+  state: Record<string, string>;
+  set: (k: string, v: string) => void;
+}) {
+  return (
+    <div className="sm:col-span-2 space-y-3">
+      <div className="text-sm font-medium text-foreground">
+        Full Business Address <span className="text-destructive">*</span>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <TextField label="Street Address" full value={state.bizStreet || ""} onChange={(v) => set("bizStreet", v)} required />
+        <TextField label="Apartment / Suite / Unit" full value={state.bizUnit || ""} onChange={(v) => set("bizUnit", v)} />
+        <TextField label="City" value={state.bizCity || ""} onChange={(v) => set("bizCity", v)} required />
+        <TextField label="State / Province" value={state.bizState || ""} onChange={(v) => set("bizState", v)} required />
+        <TextField label="ZIP / Postal Code" value={state.bizZip || ""} onChange={(v) => set("bizZip", v)} required />
+        <TextField label="Country" value={state.bizCountry || ""} onChange={(v) => set("bizCountry", v)} required />
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    MULTI-PLATFORM EXISTING ACCOUNT FORM
    - Renders one credentials card per selected platform
    - Per-platform authorization checkbox (long legal wording)
