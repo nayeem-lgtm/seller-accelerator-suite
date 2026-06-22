@@ -344,7 +344,14 @@ function Onboarding() {
                   setAuthorized={setPlatformAuthorized}
                 />
               ) : (
-                <AccountCreationForm platform={primaryPlatform} state={form} set={setField} />
+                <AccountCreationForm
+                  platform={primaryPlatform}
+                  state={form}
+                  set={setField}
+                  idUploads={idUploads}
+                  setIdUpload={setIdUpload}
+                  showUploadErrors={showUploadErrors}
+                />
               )}
 
               <div className="flex gap-3 pt-2">
@@ -354,6 +361,10 @@ function Onboarding() {
                 <Button
                   disabled={branch === "existing" && !existingDetailsValid}
                   onClick={() => {
+                    if (branch === "create" && !createIdUploadsValid) {
+                      setShowUploadErrors(true);
+                      return;
+                    }
                     setClientName(form.fullName || clientName);
                     setStage("contract");
                   }}
