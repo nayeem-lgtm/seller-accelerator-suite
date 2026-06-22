@@ -535,21 +535,17 @@ export const inviteAdmin = createServerFn({ method: "POST" })
       level: "owner",
     });
 
-    const siteUrl =
-      process.env.SITE_URL ||
-      process.env.PUBLIC_SITE_URL ||
-      (() => {
-        try {
-          // Lazy import to avoid pulling server-runtime in client bundle
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const { getRequestHost } = require("@tanstack/react-start/server");
-          const host = getRequestHost();
-          return host ? `https://${host}` : "";
-        } catch {
-          return "";
-        }
-      })();
-    const loginUrl = `${siteUrl || ""}/login?reset=1`;
+    let siteUrl = process.env.SITE_URL || process.env.PUBLIC_SITE_URL || "";
+    if (!siteUrl) {
+      try {
+        const { getRequestHost } = await import("@tanstack/react-start/server");
+        const host = getRequestHost();
+        if (host) siteUrl = `https://${host}`;
+      } catch {
+        /* ignore */
+      }
+    }
+    const loginUrl = `${siteUrl}/login?reset=1`;
 
     await notifyAdminInvite({
       to: data.email,
