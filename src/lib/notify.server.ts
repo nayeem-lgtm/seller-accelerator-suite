@@ -172,3 +172,32 @@ export async function notifyAiLead(data: {
     ),
   });
 }
+
+export async function notifyAdminInvite(data: {
+  to: string;
+  fullName?: string | null;
+  tempPassword: string;
+  loginUrl: string;
+  inviterEmail?: string | null;
+}): Promise<void> {
+  const greeting = data.fullName ? `Hi ${escape(data.fullName)},` : "Hello,";
+  await sendEmail({
+    to: data.to,
+    subject: "You've been invited to Ray Ecommerce Admin",
+    html: wrap(
+      "You're now a Ray Ecommerce Admin",
+      `<p style="margin:0 0 12px;color:#0f172a;font-size:14px;line-height:1.6">${greeting}</p>
+       <p style="margin:0 0 16px;color:#0f172a;font-size:14px;line-height:1.6">
+         ${data.inviterEmail ? `${escape(data.inviterEmail)} has` : "You have been"} granted you <strong>Owner</strong> access to the Ray Ecommerce admin panel. Sign in with the temporary credentials below and change your password right away.
+       </p>
+       <div style="padding:14px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#0f172a">
+         <div><span style="color:#64748b">Email:</span> <strong>${escape(data.to)}</strong></div>
+         <div style="margin-top:6px"><span style="color:#64748b">Temporary password:</span> <strong>${escape(data.tempPassword)}</strong></div>
+       </div>
+       <div style="margin-top:20px;text-align:center">
+         <a href="${escape(data.loginUrl)}" style="display:inline-block;padding:12px 22px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:999px;text-decoration:none;font-weight:600;font-size:14px">Sign in &amp; set your password</a>
+       </div>
+       <p style="margin:20px 0 0;color:#64748b;font-size:12px;line-height:1.5">For security, please change this temporary password immediately after signing in. If you weren't expecting this invite, ignore this email.</p>`,
+    ),
+  });
+}
