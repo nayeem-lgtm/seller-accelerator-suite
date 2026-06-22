@@ -99,7 +99,7 @@ function PricingPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-2 rounded-xl bg-muted/50 border border-border p-3">
-                  <Minus className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <X className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div className="text-xs">
                     <div className="font-bold text-foreground/70">Other Providers</div>
                     <div className="text-muted-foreground">{row.other}</div>
