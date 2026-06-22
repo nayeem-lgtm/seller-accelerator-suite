@@ -1,4 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { submitOnboarding } from "@/lib/submissions.functions";
+import { toast } from "sonner";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2, Mail, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -382,6 +385,48 @@ function Onboarding() {
               }
               onBack={() => setStage("contract")}
               onComplete={() => setStage("done")}
+              onSubmit={async (paymentMethod) => {
+                const emailGuess =
+                  form.email ||
+                  form.loginEmail ||
+                  platformForms[platforms[0]]?.loginEmail ||
+                  "";
+                try {
+                  await submitOnboardingFn({
+                    data: {
+                      clientName: clientName || form.fullName || "Unknown",
+                      clientEmail: emailGuess,
+                      countryCode: form.countryCode?.split("-")[0] || "+1",
+                      phone: form.phone || "0000",
+                      platforms,
+                      branch,
+                      totalAmount: totalForPlatforms(platforms),
+                      signatureDataUrl: signature || "data:none",
+                      agreedTerms: agreed1,
+                      agreedAuthorization: agreed2,
+                      paymentMethod: paymentMethod as
+                        | "card"
+                        | "paypal"
+                        | "bank"
+                        | "wallet"
+                        | "other",
+                      businessName: form.businessName || null,
+                      addressLine1: form.addressLine1 || null,
+                      city: form.city || null,
+                      state: form.state || null,
+                      zipCode: form.zipCode || null,
+                      country: form.country || null,
+                      sellerAccountStatus:
+                        platformForms[platforms[0]]?.accountStatus || null,
+                      notes: null,
+                    },
+                  });
+                } catch (e) {
+                  console.error(e);
+                  toast.error("Could not complete your submission. Please try again.");
+                  throw e;
+                }
+              }}
             />
           )}
         </div>
