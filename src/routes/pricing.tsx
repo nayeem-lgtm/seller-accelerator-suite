@@ -17,19 +17,18 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-type CompareRow = { feature: string; ray: string };
-const COMPARE_ROWS: CompareRow[] = [
-  { feature: "Marketplace Setup Support", ray: "Included" },
-  { feature: "Product Research", ray: "Included" },
-  { feature: "Listing Management", ray: "Included" },
-  { feature: "Supplier Coordination", ray: "Included" },
-  { feature: "Order Management Support", ray: "Included" },
-  { feature: "Customer Support Workflow", ray: "Included" },
-  { feature: "Content Strategy Guidance", ray: "Included where applicable" },
-  { feature: "Dedicated Account Support", ray: "Included" },
-  { feature: "Transparent Reporting", ray: "Monthly reporting" },
-  { feature: "Scaling Strategy", ray: "Included" },
-  { feature: "Ad Management", ray: "Available where applicable" },
+const COMPARE_FEATURES: string[] = [
+  "Marketplace Setup Support",
+  "Product Research",
+  "Listing Management",
+  "Supplier Coordination",
+  "Order Management Support",
+  "Customer Support Workflow",
+  "Content Strategy Guidance",
+  "Dedicated Account Support",
+  "Transparent Reporting",
+  "Scaling Strategy",
+  "Ad Management",
 ];
 
 function PricingPage() {
