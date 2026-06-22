@@ -201,12 +201,14 @@ export function MultiPlatformExistingForm({
   setField,
   authorized,
   setAuthorized,
+  errors = {},
 }: {
   platforms: PlatformKey[];
   forms: Record<string, Record<string, string>>;
   setField: (platform: PlatformKey, key: string, value: string) => void;
   authorized: Record<string, boolean>;
   setAuthorized: (platform: PlatformKey, v: boolean) => void;
+  errors?: Record<string, Record<string, string>>;
 }) {
   return (
     <div className="space-y-6">
@@ -215,6 +217,7 @@ export function MultiPlatformExistingForm({
         const fullName = PLATFORM_FULL_NAME[platform];
         const state = forms[platform] || {};
         const set = (k: string, v: string) => setField(platform, k, v);
+        const e = errors[platform] || {};
         return (
           <div
             key={platform}
@@ -243,18 +246,24 @@ export function MultiPlatformExistingForm({
                   onChange={(v) => set("loginEmail", v)}
                   type="email"
                   required
+                  error={e.loginEmail}
+                  name={`${platform}.loginEmail`}
                 />
                 <PasswordField
                   label={labels.password}
                   value={state.loginPassword || ""}
                   onChange={(v) => set("loginPassword", v)}
                   required
+                  error={e.loginPassword}
+                  name={`${platform}.loginPassword`}
                 />
                 <TextField
                   label="Business display name"
                   value={state.displayName || ""}
                   onChange={(v) => set("displayName", v)}
                   required
+                  error={e.displayName}
+                  name={`${platform}.displayName`}
                 />
                 <TextField
                   label="Store URL or seller profile link"
@@ -262,9 +271,9 @@ export function MultiPlatformExistingForm({
                   onChange={(v) => set("storeUrl", v)}
                   placeholder="https://"
                 />
-                <Field label="Current account status" required>
+                <Field label="Current account status" required error={e.accountStatus} name={`${platform}.accountStatus`}>
                   <Select value={state.accountStatus || ""} onValueChange={(v) => set("accountStatus", v)}>
-                    <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                    <SelectTrigger className={e.accountStatus ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select status" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="active">Active</SelectItem>
                       <SelectItem value="under_review">Under Review</SelectItem>
@@ -284,7 +293,8 @@ export function MultiPlatformExistingForm({
                 </Field>
               </div>
 
-              <label className="flex gap-3 items-start rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm cursor-pointer">
+              <div data-field={`${platform}.authorize`}>
+              <label className={`flex gap-3 items-start rounded-2xl p-4 text-sm cursor-pointer ${e.authorize ? "bg-destructive/5 border border-destructive/40" : "bg-primary/5 border border-primary/20"}`}>
                 <Checkbox
                   checked={!!authorized[platform]}
                   onCheckedChange={(v) => setAuthorized(platform, !!v)}
@@ -297,6 +307,8 @@ export function MultiPlatformExistingForm({
                   authorization remains in effect until I revoke it in writing.
                 </span>
               </label>
+              {e.authorize && <p className="mt-1 text-xs text-destructive">{e.authorize}</p>}
+              </div>
             </div>
           </div>
         );
