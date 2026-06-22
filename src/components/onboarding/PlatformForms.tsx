@@ -365,7 +365,7 @@ function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k:
         <TextField label="DBA name (if any)" value={state.dba || ""} onChange={(v) => set("dba", v)} />
         <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required />
         <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required />
-        <TextField label="Business address" full value={state.bizAddress || ""} onChange={(v) => set("bizAddress", v)} required />
+        <BusinessAddressFields state={state} set={set} />
         <Field label="Business entity classification" required>
           <Select value={state.entity || ""} onValueChange={(v) => set("entity", v)}>
             <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
@@ -416,7 +416,7 @@ function TikTokCreate({ state, set }: { state: Record<string, string>; set: (k: 
         <TextField label="DBA name (if any)" value={state.dba || ""} onChange={(v) => set("dba", v)} />
         <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required />
         <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required />
-        <TextField label="Business address" full value={state.bizAddress || ""} onChange={(v) => set("bizAddress", v)} required />
+        <BusinessAddressFields state={state} set={set} />
         <Field label="Business entity classification" required>
           <Select value={state.entity || ""} onValueChange={(v) => set("entity", v)}>
             <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
@@ -467,7 +467,7 @@ function EbayCreate({ state, set }: { state: Record<string, string>; set: (k: st
         <TextField label="DBA name (if any)" value={state.dba || ""} onChange={(v) => set("dba", v)} />
         <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required />
         <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required />
-        <TextField label="Business address" full value={state.bizAddress || ""} onChange={(v) => set("bizAddress", v)} required />
+        <BusinessAddressFields state={state} set={set} />
         <Field label="Business entity classification" required>
           <Select value={state.entity || ""} onValueChange={(v) => set("entity", v)}>
             <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
