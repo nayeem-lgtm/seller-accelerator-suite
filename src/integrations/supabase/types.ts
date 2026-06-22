@@ -47,6 +47,63 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notes: {
+        Row: {
+          admin_email: string | null
+          admin_user_id: string | null
+          created_at: string
+          id: string
+          note: string
+          target_id: string
+          target_table: string
+        }
+        Insert: {
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          id?: string
+          note: string
+          target_id: string
+          target_table: string
+        }
+        Update: {
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string
+          target_id?: string
+          target_table?: string
+        }
+        Relationships: []
+      }
+      admin_profiles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          is_active: boolean
+          level: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          level?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          level?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_leads: {
         Row: {
           conversation_snippet: string | null
@@ -57,7 +114,7 @@ export type Database = {
           name: string | null
           phone: string | null
           source_page: string | null
-          status: Database["public"]["Enums"]["lead_status"]
+          status: string
           updated_at: string
         }
         Insert: {
@@ -69,7 +126,7 @@ export type Database = {
           name?: string | null
           phone?: string | null
           source_page?: string | null
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -81,7 +138,7 @@ export type Database = {
           name?: string | null
           phone?: string | null
           source_page?: string | null
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -106,7 +163,7 @@ export type Database = {
           phone_number: string
           seller_account_status: string | null
           state: string
-          status: Database["public"]["Enums"]["lead_status"]
+          status: string
           updated_at: string
           zip_code: string
         }
@@ -129,7 +186,7 @@ export type Database = {
           phone_number: string
           seller_account_status?: string | null
           state: string
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
           zip_code: string
         }
@@ -152,7 +209,7 @@ export type Database = {
           phone_number?: string
           seller_account_status?: string | null
           state?: string
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
           zip_code?: string
         }
@@ -170,7 +227,7 @@ export type Database = {
           query_type: string | null
           selected_service: string | null
           source_page: string | null
-          status: Database["public"]["Enums"]["lead_status"]
+          status: string
           updated_at: string
         }
         Insert: {
@@ -184,7 +241,7 @@ export type Database = {
           query_type?: string | null
           selected_service?: string | null
           source_page?: string | null
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -198,7 +255,7 @@ export type Database = {
           query_type?: string | null
           selected_service?: string | null
           source_page?: string | null
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -218,7 +275,7 @@ export type Database = {
           signature_data_url: string
           signed_at: string
           signed_ip: string | null
-          status: Database["public"]["Enums"]["lead_status"]
+          status: string
           total_amount: number
           updated_at: string
           user_agent: string | null
@@ -237,7 +294,7 @@ export type Database = {
           signature_data_url: string
           signed_at?: string
           signed_ip?: string | null
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           total_amount?: number
           updated_at?: string
           user_agent?: string | null
@@ -256,7 +313,7 @@ export type Database = {
           signature_data_url?: string
           signed_at?: string
           signed_ip?: string | null
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           total_amount?: number
           updated_at?: string
           user_agent?: string | null
@@ -355,7 +412,7 @@ export type Database = {
           phone_number: string
           plan_selected: string
           platform_selected: string
-          status: Database["public"]["Enums"]["lead_status"]
+          status: string
           updated_at: string
         }
         Insert: {
@@ -368,7 +425,7 @@ export type Database = {
           phone_number: string
           plan_selected: string
           platform_selected: string
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -381,7 +438,7 @@ export type Database = {
           phone_number?: string
           plan_selected?: string
           platform_selected?: string
-          status?: Database["public"]["Enums"]["lead_status"]
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -425,6 +482,39 @@ export type Database = {
         }
         Relationships: []
       }
+      status_history: {
+        Row: {
+          admin_email: string | null
+          admin_user_id: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          target_id: string
+          target_table: string
+          to_status: string
+        }
+        Insert: {
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          target_id: string
+          target_table: string
+          to_status: string
+        }
+        Update: {
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          target_id?: string
+          target_table?: string
+          to_status?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -451,6 +541,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_admin_level: { Args: { _uid: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -458,6 +549,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_owner: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
