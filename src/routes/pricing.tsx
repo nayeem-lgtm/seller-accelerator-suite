@@ -60,20 +60,19 @@ function PricingPage() {
               <div className="col-span-3 text-center text-sm font-bold text-foreground/70">Other Providers</div>
             </div>
             <div>
-              {COMPARE_ROWS.map((row, i) => (
+              {COMPARE_FEATURES.map((feature, i) => (
                 <div
-                  key={row.feature}
+                  key={feature}
                   className={`grid grid-cols-12 items-center px-8 py-5 text-sm ${i % 2 === 0 ? "bg-white" : "bg-muted/25"} border-b border-border/50 last:border-b-0`}
                 >
-                  <div className="col-span-6 font-medium text-foreground">{row.feature}</div>
-                  <div className="col-span-3 flex items-center justify-center gap-2 text-foreground/85">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                  <div className="col-span-6 font-medium text-foreground">{feature}</div>
+                  <div className="col-span-3 flex items-center justify-center text-foreground/85">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0" aria-label="Included">
                       <CheckCircle2 className="h-4 w-4" />
                     </span>
-                    <span className="font-medium">{row.ray}</span>
                   </div>
                   <div className="col-span-3 flex items-center justify-center text-muted-foreground">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0" aria-label="Not included">
                       <X className="h-4 w-4" />
                     </span>
                   </div>
