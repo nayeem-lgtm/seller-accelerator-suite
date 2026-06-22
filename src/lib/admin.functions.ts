@@ -453,6 +453,115 @@ export const setAdminActive = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/* -------- Invite admin (owner only) -------- */
+const InviteAdminInput = z.object({
+  email: z.string().trim().toLowerCase().email().max(255),
+  fullName: z.string().trim().max(120).optional().nullable(),
+});
+
+function generateTempPassword(): string {
+  // 16-char password: upper + lower + digit + symbol guaranteed
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghijkmnpqrstuvwxyz";
+  const digit = "23456789";
+  const symbol = "!@#$%^&*";
+  const all = upper + lower + digit + symbol;
+  const pick = (set: string, n = 1) => {
+    const bytes = new Uint8Array(n);
+    crypto.getRandomValues(bytes);
+    let out = "";
+    for (let i = 0; i < n; i++) out += set[bytes[i] % set.length];
+    return out;
+  };
+  const base = pick(upper) + pick(lower) + pick(digit) + pick(symbol) + pick(all, 12);
+  // Shuffle
+  const arr = base.split("");
+  const idx = new Uint8Array(arr.length);
+  crypto.getRandomValues(idx);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = idx[i] % (i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join("");
+}
+
+export const inviteAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) => InviteAdminInput.parse(i))
+  .handler(async ({ context, data }) => {
+    await assertOwner(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { notifyAdminInvite } = await import("@/lib/notify.server");
+
+    const tempPassword = generateTempPassword();
+    const fullName = data.fullName?.trim() || null;
+
+    const created = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: tempPassword,
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        invited_by: context.claims?.email ?? null,
+      },
+    });
+    if (created.error || !created.data.user) {
+      const msg = created.error?.message ?? "Failed to create user";
+      if (/already (registered|exists)|duplicate/i.test(msg)) {
+        throw new Error("A user with that email already exists. Grant admin from the Users list instead.");
+      }
+      throw new Error(msg);
+    }
+    const newUserId = created.data.user.id;
+
+    // Grant admin role + Owner level (idempotent)
+    await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: newUserId, role: "admin" }, { onConflict: "user_id,role" });
+    await supabaseAdmin
+      .from("admin_profiles")
+      .upsert(
+        { user_id: newUserId, level: "owner", is_active: true, created_by: context.userId },
+        { onConflict: "user_id" },
+      );
+
+    // Ensure profile row exists (handle_new_user trigger usually does this)
+    await supabaseAdmin
+      .from("profiles")
+      .upsert({ id: newUserId, email: data.email, full_name: fullName }, { onConflict: "id" });
+
+    await logAudit(context, "admin_invited", "admin_profiles", newUserId, {
+      email: data.email,
+      level: "owner",
+    });
+
+    const siteUrl =
+      process.env.SITE_URL ||
+      process.env.PUBLIC_SITE_URL ||
+      (() => {
+        try {
+          // Lazy import to avoid pulling server-runtime in client bundle
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const { getRequestHost } = require("@tanstack/react-start/server");
+          const host = getRequestHost();
+          return host ? `https://${host}` : "";
+        } catch {
+          return "";
+        }
+      })();
+    const loginUrl = `${siteUrl || ""}/login?reset=1`;
+
+    await notifyAdminInvite({
+      to: data.email,
+      fullName,
+      tempPassword,
+      loginUrl,
+      inviterEmail: context.claims?.email ?? null,
+    });
+
+    return { ok: true, userId: newUserId };
+  });
+
 /* -------- Notes -------- */
 const NoteListInput = z.object({
   targetTable: z.string().min(1).max(64),
