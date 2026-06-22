@@ -14,6 +14,7 @@ import { FreeSampleSection } from "@/components/site/FreeSampleSection";
 
 import { FinalCTA } from "@/components/site/FinalCTA";
 import { ApprovedSolutionProviderCard } from "@/components/site/TrustBadge";
+import { PoweredByRayTrust, CompanyBackingSection } from "@/components/site/PoweredByRay";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -618,6 +619,7 @@ function Home() {
   return (
     <>
       <Hero />
+      <PoweredByRayTrust />
       <TrustMetrics />
       <MarketplaceStrip />
       <WhyWalmart />
@@ -625,6 +627,7 @@ function Home() {
       <ProfitBreakdown />
       <PricingSection />
       <VerifiedNetwork />
+      <CompanyBackingSection />
       <FreeSampleSection />
       <Stories />
       
