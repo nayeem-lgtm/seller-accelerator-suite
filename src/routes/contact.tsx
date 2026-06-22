@@ -6,8 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { submitContactQuery } from "@/lib/leads";
-import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -62,7 +60,6 @@ function TrustCard({
 
 function QueryForm() {
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -79,7 +76,7 @@ function QueryForm() {
     if (errors[k]) setErrors((e) => ({ ...e, [k]: "" }));
   };
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
     if (!form.fullName.trim()) next.fullName = "Required";
@@ -92,28 +89,7 @@ function QueryForm() {
       setErrors(next);
       return;
     }
-    const selected = COUNTRY_CODES.find(
-      (c) => (c.id ? `${c.code}-${c.id}` : c.code) === form.countryCode,
-    );
-    setSubmitting(true);
-    try {
-      await submitContactQuery({
-        full_name: form.fullName.trim(),
-        email: form.email.trim(),
-        phone_country_code: selected?.code ?? "+1",
-        phone_number: form.phone.trim(),
-        selected_service: form.marketplace || null,
-        query_type: form.queryType || null,
-        message: form.message.trim(),
-        source_page: typeof window !== "undefined" ? window.location.pathname : null,
-      });
-      setSubmitted(true);
-    } catch (err) {
-      console.error("[contact] submit failed", err);
-      toast.error("Something went wrong. Please check your details and try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    setSubmitted(true);
   };
 
   if (submitted) {
@@ -259,17 +235,8 @@ function QueryForm() {
           {errors.message && <p className="mt-1 text-xs text-destructive">{errors.message}</p>}
         </div>
 
-        <Button type="submit" disabled={submitting} className="w-full h-12 rounded-full brand-gradient text-white btn-glow text-base font-bold">
-          {submitting ? (
-            <>
-              <span className="mr-2 h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-              Sending…
-            </>
-          ) : (
-            <>
-              <Send className="mr-2 h-4 w-4" /> Submit Query
-            </>
-          )}
+        <Button type="submit" className="w-full h-12 rounded-full brand-gradient text-white btn-glow text-base font-bold">
+          <Send className="mr-2 h-4 w-4" /> Submit Query
         </Button>
 
         <p className="text-[11px] text-muted-foreground text-center">

@@ -17,8 +17,6 @@ import {
 import { ContractStep } from "@/components/onboarding/ContractStep";
 import { PaymentStep } from "@/components/onboarding/PaymentStep";
 import { PlatformLogo } from "@/components/site/PlatformLogo";
-import { submitPlanSelection, submitBusinessCredentials } from "@/lib/leads";
-import { toast } from "sonner";
 
 
 
@@ -134,94 +132,6 @@ function Onboarding() {
         !!authorized[p]
       );
     });
-
-  // Persist lead data to Supabase when the user moves from details → contract.
-  // Runs in the background so we never block UX on a backend failure.
-  const persistDetailsLead = async () => {
-    if (!branch || platforms.length === 0) return;
-
-    // Build a best-effort applicant identity from whichever form is active.
-    const firstPlatform = platforms[0];
-    const firstPlatformForm = platformForms[firstPlatform] || {};
-    const fullName =
-      form.fullName?.trim() ||
-      firstPlatformForm.displayName?.trim() ||
-      clientName ||
-      "Unknown";
-    const email =
-      form.email?.trim() ||
-      form.bizEmail?.trim() ||
-      firstPlatformForm.loginEmail?.trim() ||
-      "";
-    const phone =
-      form.phone?.trim() ||
-      form.bizPhone?.trim() ||
-      "0000000000";
-
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      // Without an email we can't create a useful lead — skip silently.
-      return;
-    }
-
-    // One plan_selection row per selected platform.
-    try {
-      await Promise.all(
-        platforms.map((p) =>
-          submitPlanSelection({
-            full_name: fullName,
-            email,
-            phone_country_code: "+1",
-            phone_number: phone,
-            platform_selected: p,
-            plan_selected: PLATFORMS[p].name,
-            payment_choice: "yes",
-          }),
-        ),
-      );
-    } catch (err) {
-      console.error("[onboarding] plan_selections insert failed", err);
-    }
-
-    // Business credentials are only captured in the "create" branch
-    // because that's the only form that collects a structured business address.
-    if (branch === "create" && form.bizName && form.bizStreet && form.bizCity) {
-      const platformValue: "walmart" | "tiktok" | "ebay" | "multiple" =
-        platforms.length > 1 ? "multiple" : firstPlatform;
-      try {
-        await submitBusinessCredentials({
-          full_name: fullName,
-          email,
-          phone_country_code: "+1",
-          phone_number: phone,
-          business_name: form.bizName.trim(),
-          business_email: form.bizEmail?.trim() || null,
-          business_phone: form.bizPhone?.trim() || null,
-          full_business_address: [
-            form.bizStreet,
-            form.bizUnit,
-            form.bizCity,
-            form.bizState,
-            form.bizZip,
-            form.bizCountry,
-          ]
-            .filter(Boolean)
-            .join(", "),
-          address_line_1: form.bizStreet.trim(),
-          address_line_2: form.bizUnit?.trim() || null,
-          city: form.bizCity.trim(),
-          state: form.bizState?.trim() || "—",
-          zip_code: form.bizZip?.trim() || "—",
-          country: form.bizCountry?.trim() || "—",
-          marketplace_platform: platformValue,
-          seller_account_status: form.accountStatus || null,
-          notes: form.notes || null,
-        });
-      } catch (err) {
-        console.error("[onboarding] business_credentials insert failed", err);
-        toast.error("We couldn't save your business details. Please try again.");
-      }
-    }
-  };
 
   return (
     <section className="relative py-12 md:py-20 overflow-hidden">
@@ -430,7 +340,6 @@ function Onboarding() {
                   disabled={branch === "existing" && !existingDetailsValid}
                   onClick={() => {
                     setClientName(form.fullName || clientName);
-                    void persistDetailsLead();
                     setStage("contract");
                   }}
                   className="flex-1 brand-gradient text-white rounded-full btn-glow"
