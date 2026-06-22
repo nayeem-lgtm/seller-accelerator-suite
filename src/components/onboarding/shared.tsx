@@ -112,20 +112,28 @@ export function Field({
   required,
   children,
   full,
+  error,
+  name,
 }: {
   label: string;
   hint?: string;
   required?: boolean;
   children: React.ReactNode;
   full?: boolean;
+  error?: string;
+  name?: string;
 }) {
   return (
-    <div className={full ? "sm:col-span-2" : ""}>
+    <div className={full ? "sm:col-span-2" : ""} data-field={name}>
       <Label className="text-sm font-medium">
         {label} {required && <span className="text-destructive">*</span>}
       </Label>
       <div className="mt-1.5">{children}</div>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+      {error ? (
+        <p className="mt-1 text-xs text-destructive">{error}</p>
+      ) : (
+        hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+      )}
     </div>
   );
 }
@@ -139,6 +147,8 @@ export function TextField({
   placeholder,
   hint,
   full,
+  error,
+  name,
 }: {
   label: string;
   value: string;
@@ -148,10 +158,20 @@ export function TextField({
   placeholder?: string;
   hint?: string;
   full?: boolean;
+  error?: string;
+  name?: string;
 }) {
   return (
-    <Field label={label} hint={hint} required={required} full={full}>
-      <Input type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} required={required} />
+    <Field label={label} hint={hint} required={required} full={full} error={error} name={name}>
+      <Input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        aria-invalid={!!error || undefined}
+        className={error ? "border-destructive focus-visible:ring-destructive" : undefined}
+      />
     </Field>
   );
 }
@@ -164,6 +184,8 @@ export function PasswordField({
   hint,
   full,
   placeholder = "Enter password",
+  error,
+  name,
 }: {
   label: string;
   value: string;
@@ -172,10 +194,12 @@ export function PasswordField({
   hint?: string;
   full?: boolean;
   placeholder?: string;
+  error?: string;
+  name?: string;
 }) {
   const [show, setShow] = useState(false);
   return (
-    <Field label={label} hint={hint} required={required} full={full}>
+    <Field label={label} hint={hint} required={required} full={full} error={error} name={name}>
       <div className="relative">
         <Input
           type={show ? "text" : "password"}
@@ -184,7 +208,8 @@ export function PasswordField({
           required={required}
           placeholder={placeholder}
           autoComplete="new-password"
-          className="pr-10"
+          aria-invalid={!!error || undefined}
+          className={`pr-10 ${error ? "border-destructive focus-visible:ring-destructive" : ""}`}
         />
         <button
           type="button"

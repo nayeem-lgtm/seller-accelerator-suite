@@ -66,6 +66,10 @@ function Onboarding() {
   const [agreed1, setAgreed1] = useState(false);
   const [agreed2, setAgreed2] = useState(false);
 
+  // Per-step validation errors
+  const [detailsErrors, setDetailsErrors] = useState<Record<string, string>>({});
+  const [existingErrors, setExistingErrors] = useState<Record<string, Record<string, string>>>({});
+
   // Preselect plan from pricing CTAs, or jump straight to payment from a profit dashboard CTA
   useEffect(() => {
     try {
@@ -94,11 +98,28 @@ function Onboarding() {
     } catch {}
   }, []);
 
-  const setField = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
-  const setPlatformField = (platform: PlatformKey, k: string, v: string) =>
+  const setField = (k: string, v: string) => {
+    setForm((f) => ({ ...f, [k]: v }));
+    setDetailsErrors((e) => (e[k] ? { ...e, [k]: "" } : e));
+  };
+  const setPlatformField = (platform: PlatformKey, k: string, v: string) => {
     setPlatformForms((all) => ({ ...all, [platform]: { ...(all[platform] || {}), [k]: v } }));
-  const setPlatformAuthorized = (platform: PlatformKey, v: boolean) =>
+    setExistingErrors((errs) => {
+      const p = errs[platform];
+      if (!p?.[k]) return errs;
+      const { [k]: _, ...rest } = p;
+      return { ...errs, [platform]: rest };
+    });
+  };
+  const setPlatformAuthorized = (platform: PlatformKey, v: boolean) => {
     setAuthorized((a) => ({ ...a, [platform]: v }));
+    if (v) setExistingErrors((errs) => {
+      const p = errs[platform];
+      if (!p?.authorize) return errs;
+      const { authorize: _, ...rest } = p;
+      return { ...errs, [platform]: rest };
+    });
+  };
 
   const togglePlatform = (k: PlatformKey) => {
     setPlatforms((prev) => (prev.includes(k) ? prev.filter((p) => p !== k) : [...prev, k]));
@@ -122,20 +143,101 @@ function Onboarding() {
     return <Confirmation platforms={platforms} branch={branch} navigate={navigate} />;
   }
 
-  // Validate that the existing-account credentials step is complete.
-  const existingDetailsValid =
-    branch === "existing" &&
-    platforms.length > 0 &&
-    platforms.every((p) => {
-      const s = platformForms[p] || {};
-      return (
-        !!s.loginEmail &&
-        !!s.loginPassword &&
-        !!s.displayName &&
-        !!s.accountStatus &&
-        !!authorized[p]
-      );
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRe = /^[\d+()\-\s]{7,}$/;
+
+  const scrollToError = (selector: string) => {
+    requestAnimationFrame(() => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      const input = el.querySelector("input, select, textarea, button") as HTMLElement | null;
+      input?.focus({ preventScroll: true });
     });
+  };
+
+  const validateExistingStep = (): boolean => {
+    const errs: Record<string, Record<string, string>> = {};
+    let firstKey: string | null = null;
+    for (const p of platforms) {
+      const s = platformForms[p] || {};
+      const e: Record<string, string> = {};
+      if (!s.loginEmail?.trim()) e.loginEmail = "Login email is required";
+      else if (!emailRe.test(s.loginEmail.trim())) e.loginEmail = "Enter a valid email address";
+      if (!s.loginPassword?.trim()) e.loginPassword = "Password is required";
+      if (!s.displayName?.trim()) e.displayName = "Business display name is required";
+      if (!s.accountStatus) e.accountStatus = "Please select your current account status";
+      if (!authorized[p]) e.authorize = "You must authorize Ray Ecommerce to manage this account";
+      if (Object.keys(e).length > 0) {
+        errs[p] = e;
+        if (!firstKey) firstKey = `${p}.${Object.keys(e)[0]}`;
+      }
+    }
+    setExistingErrors(errs);
+    if (firstKey) scrollToError(`[data-field="${firstKey}"]`);
+    return Object.keys(errs).length === 0;
+  };
+
+  const validateCreateStep = (): boolean => {
+    if (!primaryPlatform) return false;
+    const s = form;
+    const e: Record<string, string> = {};
+    const req = (k: string, msg: string) => { if (!s[k]?.trim()) e[k] = msg; };
+    // Personal
+    req("fullName", "Full legal name is required");
+    req("dob", "Date of birth is required");
+    if (s.dob) {
+      const dob = new Date(s.dob);
+      const today = new Date(); today.setHours(0,0,0,0);
+      if (isNaN(dob.getTime())) e.dob = "Enter a valid date of birth";
+      else if (dob > today) e.dob = "Date of birth cannot be in the future";
+    }
+    req("phone", "Phone number is required");
+    if (s.phone && !phoneRe.test(s.phone)) e.phone = "Enter a valid phone number";
+    req("email", "Email address is required");
+    if (s.email && !emailRe.test(s.email.trim())) e.email = "Enter a valid email address";
+    req("address", "Residential address is required");
+    if (!s.idType) e.idType = "Select a government ID type";
+    if (primaryPlatform === "walmart") req("idNumber", "Government ID number is required");
+    req("idExp", "ID expiration date is required");
+    if (s.idExp) {
+      const exp = new Date(s.idExp);
+      const today = new Date(); today.setHours(0,0,0,0);
+      if (isNaN(exp.getTime())) e.idExp = "Enter a valid expiration date";
+      else if (exp < today) e.idExp = "ID expiration date cannot be in the past";
+    }
+    if (primaryPlatform === "tiktok") req("ssnLast4", "SSN last 4 / ITIN is required");
+    if (primaryPlatform === "ebay") req("taxId", "SSN / EIN / ITIN is required");
+    // Business
+    req("bizName", "Legal business name is required");
+    req("bizEmail", "Business email is required");
+    if (s.bizEmail && !emailRe.test(s.bizEmail.trim())) e.bizEmail = "Enter a valid business email";
+    req("bizPhone", "Business phone is required");
+    if (s.bizPhone && !phoneRe.test(s.bizPhone)) e.bizPhone = "Enter a valid phone number";
+    req("bizStreet", "Street address is required");
+    if (!s.bizCountry) e.bizCountry = "Select a country";
+    if (!s.bizState?.trim()) e.bizState = "State / province is required";
+    if (!s.bizCity?.trim()) e.bizCity = "City is required";
+    req("bizZip", "Postal code is required");
+    if (!s.entity) e.entity = "Select an entity classification";
+    req("ein", "EIN / Business Tax ID is required");
+    req("state", "State of registration is required");
+
+    setDetailsErrors(e);
+    const keys = Object.keys(e);
+    if (keys.length > 0) scrollToError(`[data-field="${keys[0]}"]`);
+    return keys.length === 0;
+  };
+
+  const handleDetailsContinue = () => {
+    const ok = branch === "existing" ? validateExistingStep() : validateCreateStep();
+    if (!ok) {
+      toast.error("Please complete all required fields before continuing.");
+      return;
+    }
+    setClientName(form.fullName || clientName);
+    setStage("contract");
+  };
 
   return (
     <section className="relative py-12 md:py-20 overflow-hidden">
@@ -331,9 +433,10 @@ function Onboarding() {
                   setField={setPlatformField}
                   authorized={authorized}
                   setAuthorized={setPlatformAuthorized}
+                  errors={existingErrors}
                 />
               ) : (
-                <AccountCreationForm platform={primaryPlatform} state={form} set={setField} />
+                <AccountCreationForm platform={primaryPlatform} state={form} set={setField} errors={detailsErrors} />
               )}
 
               <div className="flex gap-3 pt-2">
@@ -341,11 +444,7 @@ function Onboarding() {
                   <ArrowLeft className="mr-1 h-4 w-4" /> Back
                 </Button>
                 <Button
-                  disabled={branch === "existing" && !existingDetailsValid}
-                  onClick={() => {
-                    setClientName(form.fullName || clientName);
-                    setStage("contract");
-                  }}
+                  onClick={handleDetailsContinue}
                   className="flex-1 brand-gradient text-white rounded-full btn-glow"
                 >
                   Continue to Contract <ArrowRight className="ml-1 h-4 w-4" />
