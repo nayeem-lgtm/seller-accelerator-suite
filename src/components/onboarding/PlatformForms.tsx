@@ -355,7 +355,7 @@ export function AccountCreationForm({
   );
 }
 
-function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k: string, v: string) => void }) {
+function WalmartCreate({ state, set, idUploads, setIdUpload, showUploadErrors }: { state: Record<string, string>; set: (k: string, v: string) => void; idUploads: Partial<Record<IdUploadKey, File[]>>; setIdUpload: (key: IdUploadKey, files: File[]) => void; showUploadErrors: boolean }) {
   return (
     <>
       <CollapsibleCard index={1} title="Personal Information" defaultOpen>
@@ -376,7 +376,7 @@ function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k:
         </Field>
         <TextField label="Government ID number" value={state.idNumber || ""} onChange={(v) => set("idNumber", v)} required />
         <TextField label="ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required />
-        <IdUploads idType={state.idType || ""} />
+        <IdUploads idType={state.idType || ""} uploads={idUploads} setUploads={setIdUpload} showErrors={showUploadErrors} />
       </CollapsibleCard>
 
       <CollapsibleCard index={2} title="Business Information">
@@ -406,7 +406,7 @@ function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k:
   );
 }
 
-function TikTokCreate({ state, set }: { state: Record<string, string>; set: (k: string, v: string) => void }) {
+function TikTokCreate({ state, set, idUploads, setIdUpload, showUploadErrors }: { state: Record<string, string>; set: (k: string, v: string) => void; idUploads: Partial<Record<IdUploadKey, File[]>>; setIdUpload: (key: IdUploadKey, files: File[]) => void; showUploadErrors: boolean }) {
   return (
     <>
       <CollapsibleCard index={1} title="Personal Information" defaultOpen>
@@ -427,7 +427,7 @@ function TikTokCreate({ state, set }: { state: Record<string, string>; set: (k: 
         </Field>
         <TextField label="ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required />
         <TextField label="SSN last 4 digits or ITIN" value={state.ssnLast4 || ""} onChange={(v) => set("ssnLast4", v)} required hint="Used for tax identity verification only." />
-        <IdUploads idType={state.idType || ""} />
+        <IdUploads idType={state.idType || ""} uploads={idUploads} setUploads={setIdUpload} showErrors={showUploadErrors} />
       </CollapsibleCard>
 
       <CollapsibleCard index={2} title="Business Information">
@@ -457,7 +457,7 @@ function TikTokCreate({ state, set }: { state: Record<string, string>; set: (k: 
   );
 }
 
-function EbayCreate({ state, set }: { state: Record<string, string>; set: (k: string, v: string) => void }) {
+function EbayCreate({ state, set, idUploads, setIdUpload, showUploadErrors }: { state: Record<string, string>; set: (k: string, v: string) => void; idUploads: Partial<Record<IdUploadKey, File[]>>; setIdUpload: (key: IdUploadKey, files: File[]) => void; showUploadErrors: boolean }) {
   return (
     <>
       <CollapsibleCard index={1} title="Personal Information" defaultOpen>
@@ -478,7 +478,7 @@ function EbayCreate({ state, set }: { state: Record<string, string>; set: (k: st
           </Select>
         </Field>
         <TextField label="Government ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required />
-        <IdUploads idType={state.idType || ""} />
+        <IdUploads idType={state.idType || ""} uploads={idUploads} setUploads={setIdUpload} showErrors={showUploadErrors} />
       </CollapsibleCard>
 
       <CollapsibleCard index={2} title="Business Information">
