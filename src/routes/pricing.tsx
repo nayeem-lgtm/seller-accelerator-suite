@@ -3,7 +3,7 @@ import { PricingSection } from "@/components/site/PricingSection";
 
 import { FinalCTA } from "@/components/site/FinalCTA";
 import { Section, Disclaimer } from "@/components/site/Section";
-import { CheckCircle2, Minus, Sparkles } from "lucide-react";
+import { CheckCircle2, Sparkles, X } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -75,7 +75,7 @@ function PricingPage() {
                   </div>
                   <div className="col-span-3 flex items-center gap-2 text-muted-foreground">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
-                      <Minus className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                     </span>
                     {row.other}
                   </div>
@@ -99,7 +99,7 @@ function PricingPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-2 rounded-xl bg-muted/50 border border-border p-3">
-                  <Minus className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <X className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div className="text-xs">
                     <div className="font-bold text-foreground/70">Other Providers</div>
                     <div className="text-muted-foreground">{row.other}</div>
