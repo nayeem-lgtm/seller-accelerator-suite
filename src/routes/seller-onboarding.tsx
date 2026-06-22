@@ -51,6 +51,7 @@ const PLATFORM_ORDER: PlatformKey[] = ["walmart", "tiktok", "ebay"];
 
 function Onboarding() {
   const navigate = useNavigate();
+  const submitOnboardingFn = useServerFn(submitOnboarding);
   const [stage, setStage] = useState<StageKey>("package");
   const [platforms, setPlatforms] = useState<PlatformKey[]>([]);
   const [branch, setBranch] = useState<Branch | null>(null);
