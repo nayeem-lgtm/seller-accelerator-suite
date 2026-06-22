@@ -71,6 +71,30 @@ export const adminOverview = createServerFn({ method: "GET" })
       .filter((r: any) => r.payment_status === "pending")
       .reduce((s: number, r: any) => s + Number(r.amount ?? 0), 0);
 
+    // Payment-status breakdown (count by status)
+    const paymentStatusCounts: Record<string, number> = {};
+    (revenueRows ?? []).forEach((r: any) => {
+      const k = r.payment_status ?? "unknown";
+      paymentStatusCounts[k] = (paymentStatusCounts[k] ?? 0) + 1;
+    });
+
+    // Month-to-date revenue (sum of paid payments since first of current month, UTC)
+    const now = new Date();
+    const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+    const { data: mtdRows } = await sb
+      .from("payments")
+      .select("amount, payment_status, created_at")
+      .gte("created_at", monthStart);
+    const mtdRevenue = (mtdRows ?? [])
+      .filter((r: any) => r.payment_status === "paid")
+      .reduce((s: number, r: any) => s + Number(r.amount ?? 0), 0);
+
+    // Count of brand-new contact queries (status = 'new')
+    const { count: newInquiryCount } = await sb
+      .from("contact_queries")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "new");
+
     // Customer status breakdown (sum across plan_selections, the canonical lead table)
     const { data: statusRows } = await sb.from("plan_selections").select("status");
     const statusCounts: Record<string, number> = {};
@@ -90,6 +114,21 @@ export const adminOverview = createServerFn({ method: "GET" })
       .select("id, client_name, client_email, platforms, total_amount, created_at, status")
       .order("created_at", { ascending: false })
       .limit(5);
+
+    const { data: recentSignups } = await sb
+      .from("profiles")
+      .select("id, email, full_name, company_name, created_at")
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    const { data: recentInquiries } = await sb
+      .from("contact_queries")
+      .select("id, full_name, email, selected_service, query_type, status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    const meLevel = await getLevel(context);
+
     return {
       counts: {
         users: profilesCount.count ?? 0,
@@ -100,11 +139,17 @@ export const adminOverview = createServerFn({ method: "GET" })
         payments: payments.count ?? 0,
         contacts: contacts.count ?? 0,
         leads: leads.count ?? 0,
+        newInquiries: newInquiryCount ?? 0,
       },
       statusCounts,
+      paymentStatusCounts,
       totalRevenue,
       pendingRevenue,
+      mtdRevenue,
       recentContracts: recent ?? [],
+      recentSignups: recentSignups ?? [],
+      recentInquiries: recentInquiries ?? [],
+      meLevel,
     };
   });
 
