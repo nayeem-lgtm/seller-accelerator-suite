@@ -75,7 +75,7 @@ function PricingPage() {
                   </div>
                   <div className="col-span-3 flex items-center gap-2 text-muted-foreground">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
-                      <Minus className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                     </span>
                     {row.other}
                   </div>
