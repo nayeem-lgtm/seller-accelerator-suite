@@ -3,7 +3,7 @@ import { PricingSection } from "@/components/site/PricingSection";
 
 import { FinalCTA } from "@/components/site/FinalCTA";
 import { Section, Disclaimer } from "@/components/site/Section";
-import { CheckCircle2, Minus, Sparkles } from "lucide-react";
+import { CheckCircle2, Sparkles, X } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
