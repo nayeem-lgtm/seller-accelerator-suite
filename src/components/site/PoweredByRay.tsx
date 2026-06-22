@@ -1,6 +1,6 @@
 import { Award, Briefcase, Globe2, Headphones, LineChart, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { Section } from "@/components/site/Section";
-import rayLogo from "@/assets/ray-logo.png.asset.json";
+import rayLogo from "@/assets/ray-advertising-logo.png.asset.json";
 
 /**
  * Small inline "Powered by Ray Advertising" badge.
@@ -68,8 +68,8 @@ export function PoweredByRayTrust() {
               </p>
 
               <div className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-border bg-gradient-to-br from-white to-primary/[0.04] px-4 py-3 shadow-sm">
-                <div className="h-9 w-9 rounded-xl bg-white border border-border grid place-items-center shadow-sm overflow-hidden">
-                  <img src={rayLogo.url} alt="Ray Advertising logo" className="h-6 w-6 object-contain" />
+                <div className="h-10 w-10 rounded-xl bg-white border border-border grid place-items-center shadow-sm overflow-hidden p-1">
+                  <img src={rayLogo.url} alt="Ray Advertising logo" className="h-full w-full object-contain" />
                 </div>
                 <div className="leading-tight">
                   <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Parent Company</div>
@@ -160,8 +160,8 @@ export function BackedByRaySection() {
           </p>
 
           <div className="mt-6 inline-flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 shadow-sm">
-            <div className="h-10 w-10 rounded-xl brand-gradient grid place-items-center text-white shadow-md">
-              <Sparkles className="h-4 w-4" />
+            <div className="h-10 w-10 rounded-xl bg-white border border-border grid place-items-center shadow-sm overflow-hidden p-1">
+              <img src={rayLogo.url} alt="Ray Advertising logo" className="h-full w-full object-contain" />
             </div>
             <div className="leading-tight">
               <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">Parent Company</div>
