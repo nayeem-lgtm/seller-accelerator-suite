@@ -81,9 +81,12 @@ export const adminOverview = createServerFn({ method: "GET" })
   });
 
 /* -------- Generic list endpoints -------- */
+const LEAD_STATUSES = ["new", "contacted", "in_progress", "completed", "rejected"] as const;
+type LeadStatus = (typeof LEAD_STATUSES)[number];
+
 const ListInput = z.object({
   limit: z.number().int().min(1).max(200).default(100),
-  status: z.string().optional().nullable(),
+  status: z.enum(LEAD_STATUSES).optional().nullable(),
 });
 
 export const listPlanSelections = createServerFn({ method: "POST" })
@@ -192,7 +195,7 @@ const StatusInput = z.object({
     "contact_queries",
     "ai_leads",
   ]),
-  status: z.enum(["new", "contacted", "qualified", "won", "lost", "spam"]),
+  status: z.enum(LEAD_STATUSES),
 });
 
 export const updateLeadStatus = createServerFn({ method: "POST" })
@@ -263,7 +266,7 @@ export const listAdminUsers = createServerFn({ method: "GET" })
 
 const GrantInput = z.object({
   userId: z.string().uuid(),
-  role: z.enum(["admin", "moderator", "user"]),
+  role: z.enum(["admin", "user"]),
   grant: z.boolean(),
 });
 
