@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube, Phone, Mail, MapPin } from "lucide-react";
 import logoAsset from "@/assets/ray-logo.asset.json";
 import { PlatformLogo } from "@/components/site/PlatformLogo";
+import { PoweredByRayBadge } from "@/components/site/PoweredByRay";
 
 const COMPANY_LINKS: { to: string; label: string }[] = [
   { to: "/services", label: "Services" },
@@ -26,6 +27,9 @@ export function SiteFooter() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <img src={logoAsset.url} alt="Ray Ecommerce" className="h-8 md:h-9 w-auto object-contain" />
+            <div className="mt-3">
+              <PoweredByRayBadge />
+            </div>
             <p className="mt-4 text-sm text-muted-foreground max-w-md">
               Ray Ecommerce, a division of Ray Advertising, is an independent marketplace
               operations service provider — helping entrepreneurs launch and scale their Walmart
@@ -83,6 +87,16 @@ export function SiteFooter() {
             </div>
           </div>
           <div className="text-xs text-muted-foreground space-y-3">
+            <div className="rounded-xl border border-primary/15 bg-primary/[0.04] px-4 py-3">
+              <div className="flex items-center gap-2 text-primary font-bold text-[11px] tracking-[0.18em] uppercase">
+                Powered by Ray Advertising
+              </div>
+              <p className="mt-1 text-foreground/70">
+                This brand operates with the support, experience, and strategic guidance of Ray Advertising —
+                a global performance marketing and business growth company helping brands scale through
+                marketing, technology, lead generation, and digital solutions.
+              </p>
+            </div>
             <p className="rounded-xl border border-[#0071DC]/15 bg-[#0071DC]/5 px-3 py-2 text-[#0071DC]">
               Ray Ecommerce is a Walmart Marketplace approved Solution Provider. Marketplace approval, sales, profit, or performance results are not guaranteed.
             </p>
@@ -96,6 +110,7 @@ export function SiteFooter() {
               partnership, guaranteed approval, guaranteed sales, or guaranteed results.
             </p>
             <p>© {new Date().getFullYear()} Ray Ecommerce — A Ray Advertising company. All rights reserved.</p>
+            <p>© 2026 Ray Advertising. All rights reserved.</p>
           </div>
         </div>
 
