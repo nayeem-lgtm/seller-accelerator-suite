@@ -17,19 +17,19 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-type CompareRow = { feature: string; ray: string; other: string };
+type CompareRow = { feature: string; ray: string };
 const COMPARE_ROWS: CompareRow[] = [
-  { feature: "Marketplace Setup Support", ray: "Included", other: "Often limited" },
-  { feature: "Product Research", ray: "Included", other: "May be basic" },
-  { feature: "Listing Management", ray: "Included", other: "Sometimes limited" },
-  { feature: "Supplier Coordination", ray: "Included", other: "Often not included" },
-  { feature: "Order Management Support", ray: "Included", other: "Limited or separate" },
-  { feature: "Customer Support Workflow", ray: "Included", other: "Often limited" },
-  { feature: "Content Strategy Guidance", ray: "Included where applicable", other: "Usually separate" },
-  { feature: "Dedicated Account Support", ray: "Included", other: "May be unavailable" },
-  { feature: "Transparent Reporting", ray: "Monthly reporting", other: "Often unclear" },
-  { feature: "Scaling Strategy", ray: "Included", other: "May be separate" },
-  { feature: "Ad Management", ray: "Available where applicable", other: "Usually separate or limited" },
+  { feature: "Marketplace Setup Support", ray: "Included" },
+  { feature: "Product Research", ray: "Included" },
+  { feature: "Listing Management", ray: "Included" },
+  { feature: "Supplier Coordination", ray: "Included" },
+  { feature: "Order Management Support", ray: "Included" },
+  { feature: "Customer Support Workflow", ray: "Included" },
+  { feature: "Content Strategy Guidance", ray: "Included where applicable" },
+  { feature: "Dedicated Account Support", ray: "Included" },
+  { feature: "Transparent Reporting", ray: "Monthly reporting" },
+  { feature: "Scaling Strategy", ray: "Included" },
+  { feature: "Ad Management", ray: "Available where applicable" },
 ];
 
 function PricingPage() {
