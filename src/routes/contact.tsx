@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CalendlyEmbed } from "@/components/site/FreeSampleSection";
 import { ShieldCheck, Sparkles, Clock, Lock, Send, CheckCircle2, MessageSquare } from "lucide-react";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { submitContactQuery } from "@/lib/submissions.functions";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -60,6 +63,8 @@ function TrustCard({
 
 function QueryForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const submitFn = useServerFn(submitContactQuery);
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -76,7 +81,7 @@ function QueryForm() {
     if (errors[k]) setErrors((e) => ({ ...e, [k]: "" }));
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const next: Record<string, string> = {};
     if (!form.fullName.trim()) next.fullName = "Required";
@@ -89,7 +94,27 @@ function QueryForm() {
       setErrors(next);
       return;
     }
-    setSubmitted(true);
+    setSending(true);
+    try {
+      await submitFn({
+        data: {
+          fullName: form.fullName.trim(),
+          email: form.email.trim(),
+          countryCode: form.countryCode.split("-")[0],
+          phone: form.phone.trim(),
+          marketplace: form.marketplace,
+          queryType: form.queryType,
+          message: form.message.trim(),
+          sourcePage: typeof window !== "undefined" ? window.location.pathname : null,
+        },
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not send your query. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   if (submitted) {
@@ -235,8 +260,8 @@ function QueryForm() {
           {errors.message && <p className="mt-1 text-xs text-destructive">{errors.message}</p>}
         </div>
 
-        <Button type="submit" className="w-full h-12 rounded-full brand-gradient text-white btn-glow text-base font-bold">
-          <Send className="mr-2 h-4 w-4" /> Submit Query
+        <Button type="submit" disabled={sending} className="w-full h-12 rounded-full brand-gradient text-white btn-glow text-base font-bold">
+          <Send className="mr-2 h-4 w-4" /> {sending ? "Submitting…" : "Submit Query"}
         </Button>
 
         <p className="text-[11px] text-muted-foreground text-center">

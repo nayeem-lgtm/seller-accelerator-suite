@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_email: string | null
+          admin_user_id: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          target_id: string | null
+          target_table: string | null
+        }
+        Insert: {
+          action: string
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Update: {
+          action?: string
+          admin_email?: string | null
+          admin_user_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_table?: string | null
+        }
+        Relationships: []
+      }
+      ai_leads: {
+        Row: {
+          conversation_snippet: string | null
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          name: string | null
+          phone: string | null
+          source_page: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          conversation_snippet?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          name?: string | null
+          phone?: string | null
+          source_page?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          conversation_snippet?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          name?: string | null
+          phone?: string | null
+          source_page?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       business_credentials: {
         Row: {
           address_line_1: string
@@ -130,6 +202,147 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      contracts: {
+        Row: {
+          agreed_authorization: boolean
+          agreed_terms: boolean
+          branch: string
+          business_credentials_id: string | null
+          client_email: string | null
+          client_name: string
+          created_at: string
+          id: string
+          plan_selection_id: string | null
+          platforms: string[]
+          signature_data_url: string
+          signed_at: string
+          signed_ip: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          total_amount: number
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          agreed_authorization?: boolean
+          agreed_terms?: boolean
+          branch: string
+          business_credentials_id?: string | null
+          client_email?: string | null
+          client_name: string
+          created_at?: string
+          id?: string
+          plan_selection_id?: string | null
+          platforms: string[]
+          signature_data_url: string
+          signed_at?: string
+          signed_ip?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          total_amount?: number
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          agreed_authorization?: boolean
+          agreed_terms?: boolean
+          branch?: string
+          business_credentials_id?: string | null
+          client_email?: string | null
+          client_name?: string
+          created_at?: string
+          id?: string
+          plan_selection_id?: string | null
+          platforms?: string[]
+          signature_data_url?: string
+          signed_at?: string
+          signed_ip?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          total_amount?: number
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_business_credentials_id_fkey"
+            columns: ["business_credentials_id"]
+            isOneToOne: false
+            referencedRelation: "business_credentials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_plan_selection_id_fkey"
+            columns: ["plan_selection_id"]
+            isOneToOne: false
+            referencedRelation: "plan_selections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          client_email: string | null
+          client_name: string
+          contract_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          payment_method: string
+          payment_status: string
+          plan_selection_id: string | null
+          platforms: string[]
+          reference_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          client_email?: string | null
+          client_name: string
+          contract_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_method: string
+          payment_status?: string
+          plan_selection_id?: string | null
+          platforms: string[]
+          reference_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          client_email?: string | null
+          client_name?: string
+          contract_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          payment_status?: string
+          plan_selection_id?: string | null
+          platforms?: string[]
+          reference_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_plan_selection_id_fkey"
+            columns: ["plan_selection_id"]
+            isOneToOne: false
+            referencedRelation: "plan_selections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plan_selections: {
         Row: {

@@ -28,6 +28,7 @@ export function PaymentStep({
   fulfillmentLabel,
   onBack,
   onComplete,
+  onSubmit,
 }: {
   platforms: PlatformKey[];
   branch: Branch;
@@ -36,6 +37,7 @@ export function PaymentStep({
   fulfillmentLabel?: string;
   onBack: () => void;
   onComplete: () => void;
+  onSubmit?: (paymentMethod: string) => Promise<void>;
 }) {
   const total = totalForPlatforms(platforms);
   const headline =
@@ -45,13 +47,17 @@ export function PaymentStep({
   const [pay, setPay] = useState({ method: "card", cardName: clientName, cardNumber: "", exp: "", cvc: "" });
   const [processing, setProcessing] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setProcessing(true);
-    setTimeout(() => {
-      setProcessing(false);
+    try {
+      if (onSubmit) await onSubmit(pay.method);
       onComplete();
-    }, 1400);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
