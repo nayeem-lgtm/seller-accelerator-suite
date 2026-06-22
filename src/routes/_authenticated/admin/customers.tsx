@@ -115,11 +115,11 @@ function CustomersAdmin() {
                     <Td className="text-xs uppercase font-bold">{r.payment_choice}</Td>
                     <Td><StatusBadge status={r.status} /></Td>
                     <Td className="text-xs text-muted-foreground">{fmtDate(r.created_at)}</Td>
-                    <Td>
+                    <Td children={
                       <Link to="/admin/customers/$id" params={{ id: r.id }} className="text-primary text-sm font-semibold inline-flex items-center hover:underline">
                         Open <ChevronRight className="h-4 w-4" />
                       </Link>
-                    </Td>
+                    } />
                   </tr>
                 ))}
                 {(data?.length ?? 0) === 0 && (

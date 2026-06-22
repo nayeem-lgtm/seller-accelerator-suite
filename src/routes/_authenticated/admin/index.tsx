@@ -44,15 +44,28 @@ function AdminHome() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Plan selections" value={data.counts.plans} />
-        <StatCard label="Business profiles" value={data.counts.business} />
+        <StatCard label="Total users" value={(data.counts as any).users ?? 0} />
+        <StatCard label="New (30d)" value={(data.counts as any).newSignups ?? 0} />
+        <StatCard label="Customers" value={data.counts.plans} />
         <StatCard label="Contracts" value={data.counts.contracts} />
-        <StatCard label="Payments" value={data.counts.payments} />
-        <StatCard label="Contact queries" value={data.counts.contacts} />
-        <StatCard label="Ray AI leads" value={data.counts.leads} />
         <StatCard label="Revenue (paid)" value={`$${data.totalRevenue.toFixed(2)}`} />
         <StatCard label="Pending revenue" value={`$${data.pendingRevenue.toFixed(2)}`} />
+        <StatCard label="Contact queries" value={data.counts.contacts} />
+        <StatCard label="Ray AI leads" value={data.counts.leads} />
       </div>
+
+      {(data as any).statusCounts && (
+        <Card className="p-5">
+          <div className="text-base font-bold mb-3">Customer pipeline</div>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries((data as any).statusCounts as Record<string, number>).map(([k, v]) => (
+              <span key={k} className="px-3 py-1.5 rounded-full bg-muted text-xs font-semibold capitalize">
+                {k.replace("_", " ")}: <strong className="ml-1">{String(v)}</strong>
+              </span>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <Card className="p-5">
         <div className="text-base font-bold">Recent Contracts</div>
