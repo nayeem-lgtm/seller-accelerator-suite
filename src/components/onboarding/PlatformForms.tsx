@@ -55,9 +55,11 @@ function IdUploads({ idType }: { idType: string }) {
 function BusinessAddressFields({
   state,
   set,
+  errors = {},
 }: {
   state: Record<string, string>;
   set: (k: string, v: string) => void;
+  errors?: Record<string, string>;
 }) {
   const country = state.bizCountry || "";
   const province = state.bizState || "";
@@ -68,6 +70,7 @@ function BusinessAddressFields({
   const zipRegex = country ? POSTAL_REGEX[country] : undefined;
   const zipValue = state.bizZip || "";
   const zipInvalid = !!(zipRegex && zipValue && !zipRegex.test(zipValue));
+  const zipError = errors.bizZip || (zipInvalid ? `Enter a valid ${zipLabel.toLowerCase()} for the selected country.` : undefined);
 
   return (
     <div className="sm:col-span-2 space-y-3">
@@ -75,11 +78,11 @@ function BusinessAddressFields({
         Legal Business Address <span className="text-destructive">*</span>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
-        <TextField label="Street Address" full value={state.bizStreet || ""} onChange={(v) => set("bizStreet", v)} required />
+        <TextField label="Street Address" full value={state.bizStreet || ""} onChange={(v) => set("bizStreet", v)} required error={errors.bizStreet} name="bizStreet" />
         <TextField label="Apartment / Suite / Unit" full value={state.bizUnit || ""} onChange={(v) => set("bizUnit", v)} />
 
         {/* Country */}
-        <Field label="Country" required>
+        <Field label="Country" required error={errors.bizCountry} name="bizCountry">
           <Select
             value={country}
             onValueChange={(v) => {
@@ -89,7 +92,7 @@ function BusinessAddressFields({
               if (state.bizCity) set("bizCity", "");
             }}
           >
-            <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+            <SelectTrigger className={errors.bizCountry ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select country" /></SelectTrigger>
             <SelectContent>
               {COUNTRIES.map((c) => (
                 <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
@@ -100,7 +103,7 @@ function BusinessAddressFields({
 
         {/* State / Province */}
         {stateList ? (
-          <Field label="State / Province" required>
+          <Field label="State / Province" required error={errors.bizState} name="bizState">
             <Select
               value={province}
               onValueChange={(v) => {
@@ -109,7 +112,7 @@ function BusinessAddressFields({
               }}
               disabled={!country}
             >
-              <SelectTrigger>
+              <SelectTrigger className={errors.bizState ? "border-destructive focus:ring-destructive" : undefined}>
                 <SelectValue placeholder={country ? "Select state / province" : "Select country first"} />
               </SelectTrigger>
               <SelectContent>
@@ -120,26 +123,28 @@ function BusinessAddressFields({
             </Select>
           </Field>
         ) : (
-          <Field label="State / Province" required>
+          <Field label="State / Province" required error={errors.bizState} name="bizState">
             <Input
               value={province}
               onChange={(e) => set("bizState", e.target.value)}
               disabled={!country}
               placeholder={country ? "Enter state / province" : "Select country first"}
               required
+              aria-invalid={!!errors.bizState || undefined}
+              className={errors.bizState ? "border-destructive focus-visible:ring-destructive" : undefined}
             />
           </Field>
         )}
 
         {/* City */}
         {cityList ? (
-          <Field label="City" required>
+          <Field label="City" required error={errors.bizCity} name="bizCity">
             <Select
               value={state.bizCity || ""}
               onValueChange={(v) => set("bizCity", v)}
               disabled={!province}
             >
-              <SelectTrigger>
+              <SelectTrigger className={errors.bizCity ? "border-destructive focus:ring-destructive" : undefined}>
                 <SelectValue placeholder={province ? "Select city" : "Select state / province first"} />
               </SelectTrigger>
               <SelectContent>
@@ -150,13 +155,15 @@ function BusinessAddressFields({
             </Select>
           </Field>
         ) : (
-          <Field label="City" required>
+          <Field label="City" required error={errors.bizCity} name="bizCity">
             <Input
               value={state.bizCity || ""}
               onChange={(e) => set("bizCity", e.target.value)}
               disabled={!province}
               placeholder={province ? "Enter city" : "Select state / province first"}
               required
+              aria-invalid={!!errors.bizCity || undefined}
+              className={errors.bizCity ? "border-destructive focus-visible:ring-destructive" : undefined}
             />
           </Field>
         )}
@@ -165,14 +172,15 @@ function BusinessAddressFields({
         <Field
           label={zipLabel}
           required
-          hint={zipInvalid ? `Enter a valid ${zipLabel.toLowerCase()} for the selected country.` : undefined}
+          error={zipError}
+          name="bizZip"
         >
           <Input
             value={zipValue}
             onChange={(e) => set("bizZip", e.target.value)}
             required
-            aria-invalid={zipInvalid || undefined}
-            className={zipInvalid ? "border-destructive focus-visible:ring-destructive" : undefined}
+            aria-invalid={!!zipError || undefined}
+            className={zipError ? "border-destructive focus-visible:ring-destructive" : undefined}
           />
         </Field>
       </div>
