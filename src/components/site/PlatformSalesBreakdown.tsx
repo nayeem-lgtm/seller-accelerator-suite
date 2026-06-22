@@ -69,7 +69,7 @@ function StatPill({ icon: Icon, label, value, accent }: { icon: React.ComponentT
 function CategoryCard({ platform, cat }: { platform: string; cat: CategoryExample }) {
   const rows: [string, string][] = [
     ["Avg. sale price", "$100"],
-    ["Monthly orders", String(cat.monthlyOrders)],
+    ["Monthly orders", cat.monthlyOrders.toLocaleString()],
     ["Gross revenue", cat.grossRevenue],
     ["Platform fee", `-${cat.platformFee}`],
     ["Shipping", `-${cat.shipping}`],
@@ -82,7 +82,7 @@ function CategoryCard({ platform, cat }: { platform: string; cat: CategoryExampl
         <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase text-primary">
           {platform}
         </span>
-        <span className="text-xs text-muted-foreground">{cat.monthlyOrders} orders / mo</span>
+        <span className="text-xs text-muted-foreground">{cat.monthlyOrders.toLocaleString()} orders / mo</span>
       </div>
       <h3 className="text-lg font-bold leading-tight">{cat.title}</h3>
       <p className="mt-1.5 text-sm text-muted-foreground">{cat.description}</p>
