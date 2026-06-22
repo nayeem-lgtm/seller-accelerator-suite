@@ -330,6 +330,7 @@ function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k:
         </Field>
         <TextField label="Government ID number" value={state.idNumber || ""} onChange={(v) => set("idNumber", v)} required />
         <TextField label="ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required />
+        <IdUploads idType={state.idType || ""} />
       </CollapsibleCard>
 
       <CollapsibleCard index={2} title="Business Information">
@@ -354,103 +355,6 @@ function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k:
         <TextField label="Business license number" value={state.license || ""} onChange={(v) => set("license", v)} />
         <TextField label="State of registration" value={state.state || ""} onChange={(v) => set("state", v)} required />
         <TextField label="Website or store link" full value={state.website || ""} onChange={(v) => set("website", v)} />
-      </CollapsibleCard>
-
-      <CollapsibleCard index={3} title="Tax & Verification">
-        <Field label="W-9 information (legal name + TIN/EIN)" full>
-          <Textarea rows={3} value={state.w9 || ""} onChange={(e) => set("w9", e.target.value)} />
-        </Field>
-        <Field label="Tax notes (optional)" full>
-          <Textarea rows={2} value={state.taxNotes || ""} onChange={(e) => set("taxNotes", e.target.value)} />
-        </Field>
-      </CollapsibleCard>
-
-      <CollapsibleCard index={4} title="Marketplace Readiness">
-        <Field label="Previous marketplace experience" required>
-          <Select value={state.experience || ""} onValueChange={(v) => set("experience", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="amazon">Amazon</SelectItem>
-              <SelectItem value="ebay">eBay</SelectItem>
-              <SelectItem value="shopify">Shopify</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-              <SelectItem value="none">None</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <TextField label="Existing store links" value={state.storeLinks || ""} onChange={(v) => set("storeLinks", v)} />
-        <TextField label="Estimated monthly sales" value={state.monthlySales || ""} onChange={(v) => set("monthlySales", v)} />
-        <TextField label="Product category" value={state.category || ""} onChange={(v) => set("category", v)} required />
-        <Field label="Product catalog available?" required>
-          <Select value={state.catalog || ""} onValueChange={(v) => set("catalog", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="yes">Yes</SelectItem>
-              <SelectItem value="no">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="UPC / GTIN / GS1 availability" required>
-          <Select value={state.upc || ""} onValueChange={(v) => set("upc", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="yes">Yes</SelectItem>
-              <SelectItem value="no">No</SelectItem>
-              <SelectItem value="help">Need Help</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field label="Supplier invoice available?" required>
-          <Select value={state.supplierInvoice || ""} onValueChange={(v) => set("supplierInvoice", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="yes">Yes</SelectItem>
-              <SelectItem value="no">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-      </CollapsibleCard>
-
-      <CollapsibleCard index={5} title="Fulfillment & Returns">
-        <Field label="Fulfillment method" required>
-          <Select value={state.fulfillment || ""} onValueChange={(v) => set("fulfillment", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="wfs">Walmart Fulfillment Services (WFS)</SelectItem>
-              <SelectItem value="3pl">3PL</SelectItem>
-              <SelectItem value="own">Own warehouse</SelectItem>
-              <SelectItem value="help">Need help</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
-        <TextField label="Warehouse address" full value={state.warehouse || ""} onChange={(v) => set("warehouse", v)} />
-        <TextField label="Return address" full value={state.returnAddress || ""} onChange={(v) => set("returnAddress", v)} />
-        <Field label="Shipping policy" full>
-          <Textarea rows={2} value={state.shippingPolicy || ""} onChange={(e) => set("shippingPolicy", e.target.value)} />
-        </Field>
-        <Field label="Return policy" full>
-          <Textarea rows={2} value={state.returnPolicy || ""} onChange={(e) => set("returnPolicy", e.target.value)} />
-        </Field>
-      </CollapsibleCard>
-
-      <CollapsibleCard index={6} title="Required Document Uploads">
-        {[
-          "Government ID (front)",
-          "Government ID (back)",
-          "EIN verification letter / CP575 / 147C",
-          "Articles of Organization or Incorporation",
-          "Certificate of Good Standing",
-          "Business license or state registration",
-          "Proof of business address",
-          "Bank statement or payout proof",
-          "Product catalog file",
-          "UPC / GTIN list",
-          "Supplier invoices",
-          "Ecommerce proof (screenshots/store)",
-          "Warehouse / return address proof",
-        ].map((l) => (
-          <FileUploadBox key={l} label={l} />
-        ))}
       </CollapsibleCard>
     </>
   );
