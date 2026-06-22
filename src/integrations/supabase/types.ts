@@ -14,6 +14,165 @@ export type Database = {
   }
   public: {
     Tables: {
+      business_credentials: {
+        Row: {
+          address_line_1: string
+          address_line_2: string | null
+          business_email: string | null
+          business_name: string
+          business_phone: string | null
+          city: string
+          country: string
+          created_at: string
+          email: string
+          full_business_address: string | null
+          full_name: string
+          id: string
+          marketplace_platform: string
+          notes: string | null
+          phone_country_code: string
+          phone_number: string
+          seller_account_status: string | null
+          state: string
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+          zip_code: string
+        }
+        Insert: {
+          address_line_1: string
+          address_line_2?: string | null
+          business_email?: string | null
+          business_name: string
+          business_phone?: string | null
+          city: string
+          country: string
+          created_at?: string
+          email: string
+          full_business_address?: string | null
+          full_name: string
+          id?: string
+          marketplace_platform: string
+          notes?: string | null
+          phone_country_code: string
+          phone_number: string
+          seller_account_status?: string | null
+          state: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          zip_code: string
+        }
+        Update: {
+          address_line_1?: string
+          address_line_2?: string | null
+          business_email?: string | null
+          business_name?: string
+          business_phone?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          email?: string
+          full_business_address?: string | null
+          full_name?: string
+          id?: string
+          marketplace_platform?: string
+          notes?: string | null
+          phone_country_code?: string
+          phone_number?: string
+          seller_account_status?: string | null
+          state?: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          zip_code?: string
+        }
+        Relationships: []
+      }
+      contact_queries: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string
+          phone_country_code: string
+          phone_number: string
+          query_type: string | null
+          selected_service: string | null
+          source_page: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message: string
+          phone_country_code: string
+          phone_number: string
+          query_type?: string | null
+          selected_service?: string | null
+          source_page?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string
+          phone_country_code?: string
+          phone_number?: string
+          query_type?: string | null
+          selected_service?: string | null
+          source_page?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plan_selections: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          payment_choice: string
+          phone_country_code: string
+          phone_number: string
+          plan_selected: string
+          platform_selected: string
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          payment_choice: string
+          phone_country_code: string
+          phone_number: string
+          plan_selected: string
+          platform_selected: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          payment_choice?: string
+          phone_country_code?: string
+          phone_number?: string
+          plan_selected?: string
+          platform_selected?: string
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_name: string | null
@@ -53,15 +212,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      lead_status:
+        | "new"
+        | "contacted"
+        | "in_progress"
+        | "completed"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -188,6 +380,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      lead_status: ["new", "contacted", "in_progress", "completed", "rejected"],
+    },
   },
 } as const
