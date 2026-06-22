@@ -328,16 +328,28 @@ export function AccountCreationForm({
   platform,
   state,
   set,
+  idUploads,
+  setIdUpload,
+  showUploadErrors,
 }: {
   platform: PlatformKey;
   state: Record<string, string>;
   set: (k: string, v: string) => void;
+  idUploads: Partial<Record<IdUploadKey, File[]>>;
+  setIdUpload: (key: IdUploadKey, files: File[]) => void;
+  showUploadErrors: boolean;
 }) {
   return (
     <div className="space-y-4">
-      {platform === "walmart" && <WalmartCreate state={state} set={set} />}
-      {platform === "tiktok" && <TikTokCreate state={state} set={set} />}
-      {platform === "ebay" && <EbayCreate state={state} set={set} />}
+      {platform === "walmart" && (
+        <WalmartCreate state={state} set={set} idUploads={idUploads} setIdUpload={setIdUpload} showUploadErrors={showUploadErrors} />
+      )}
+      {platform === "tiktok" && (
+        <TikTokCreate state={state} set={set} idUploads={idUploads} setIdUpload={setIdUpload} showUploadErrors={showUploadErrors} />
+      )}
+      {platform === "ebay" && (
+        <EbayCreate state={state} set={set} idUploads={idUploads} setIdUpload={setIdUpload} showUploadErrors={showUploadErrors} />
+      )}
       <PrivacyNote />
     </div>
   );
