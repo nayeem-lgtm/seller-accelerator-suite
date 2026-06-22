@@ -550,6 +550,7 @@ export type Database = {
         Returns: boolean
       }
       is_owner: { Args: { _uid: string }; Returns: boolean }
+      whoami: { Args: never; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
