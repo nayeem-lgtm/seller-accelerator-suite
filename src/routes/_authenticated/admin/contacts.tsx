@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
-import { PageHeader, StatusEditor, fmtDate } from "./_shared";
+import { PageHeader, StatusEditor, fmtDate } from "@/lib/admin-ui";
 
 export const Route = createFileRoute("/_authenticated/admin/contacts")({
   component: ContactsAdmin,

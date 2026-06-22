@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { listAuditLog } from "@/lib/admin.functions";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader, fmtDate } from "./_shared";
+import { PageHeader, fmtDate } from "@/lib/admin-ui";
 
 export const Route = createFileRoute("/_authenticated/admin/audit")({
   component: AuditAdmin,

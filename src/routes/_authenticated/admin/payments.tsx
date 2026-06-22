@@ -5,7 +5,7 @@ import { listPayments, updatePaymentStatus } from "@/lib/admin.functions";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PageHeader, fmtDate } from "./_shared";
+import { PageHeader, fmtDate } from "@/lib/admin-ui";
 import { toast } from "sonner";
 import { useState } from "react";
 

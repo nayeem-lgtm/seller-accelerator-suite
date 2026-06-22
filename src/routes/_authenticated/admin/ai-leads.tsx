@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { listAiLeads } from "@/lib/admin.functions";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PageHeader, StatusEditor, fmtDate } from "./_shared";
+import { PageHeader, StatusEditor, fmtDate } from "@/lib/admin-ui";
 
 export const Route = createFileRoute("/_authenticated/admin/ai-leads")({
   component: AiLeadsAdmin,

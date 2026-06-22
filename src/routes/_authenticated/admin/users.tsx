@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useState } from "react";
-import { PageHeader, fmtDate } from "./_shared";
+import { PageHeader, fmtDate } from "@/lib/admin-ui";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   component: UsersAdmin,

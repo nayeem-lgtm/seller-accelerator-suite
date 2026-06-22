@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PageHeader, StatusEditor, fmtDate } from "./_shared";
+import { PageHeader, StatusEditor, fmtDate } from "@/lib/admin-ui";
 
 export const Route = createFileRoute("/_authenticated/admin/contracts")({
   component: ContractsAdmin,

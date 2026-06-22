@@ -5,7 +5,7 @@ import { listPlanSelections, listBusinessCredentials } from "@/lib/admin.functio
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader, StatusEditor, fmtDate } from "./_shared";
+import { PageHeader, StatusEditor, fmtDate } from "@/lib/admin-ui";
 
 export const Route = createFileRoute("/_authenticated/admin/onboarding")({
   component: OnboardingAdmin,
