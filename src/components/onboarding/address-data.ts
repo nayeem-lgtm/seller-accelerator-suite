@@ -1,0 +1,178 @@
+// Address reference data for the Business Address fields.
+// Keep lists practical; fall back to text input when no data is available.
+
+export const COUNTRIES: { code: string; name: string }[] = [
+  { code: "US", name: "United States" },
+  { code: "CA", name: "Canada" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "BD", name: "Bangladesh" },
+  { code: "IN", name: "India" },
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "AU", name: "Australia" },
+  // Additional commonly used countries
+  { code: "DE", name: "Germany" },
+  { code: "FR", name: "France" },
+  { code: "IT", name: "Italy" },
+  { code: "ES", name: "Spain" },
+  { code: "NL", name: "Netherlands" },
+  { code: "IE", name: "Ireland" },
+  { code: "MX", name: "Mexico" },
+  { code: "BR", name: "Brazil" },
+  { code: "JP", name: "Japan" },
+  { code: "SG", name: "Singapore" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "PK", name: "Pakistan" },
+  { code: "PH", name: "Philippines" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "ZA", name: "South Africa" },
+];
+
+// State / Province lists per country. Undefined => fall back to text input.
+export const STATES_BY_COUNTRY: Record<string, string[]> = {
+  US: [
+    "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut",
+    "Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa",
+    "Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan",
+    "Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada",
+    "New Hampshire","New Jersey","New Mexico","New York","North Carolina",
+    "North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island",
+    "South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont",
+    "Virginia","Washington","West Virginia","Wisconsin","Wyoming",
+    "District of Columbia",
+  ],
+  CA: [
+    "Alberta","British Columbia","Manitoba","New Brunswick","Newfoundland and Labrador",
+    "Northwest Territories","Nova Scotia","Nunavut","Ontario","Prince Edward Island",
+    "Quebec","Saskatchewan","Yukon",
+  ],
+  GB: ["England","Scotland","Wales","Northern Ireland"],
+  AU: [
+    "Australian Capital Territory","New South Wales","Northern Territory",
+    "Queensland","South Australia","Tasmania","Victoria","Western Australia",
+  ],
+  AE: [
+    "Abu Dhabi","Ajman","Dubai","Fujairah","Ras Al Khaimah","Sharjah","Umm Al Quwain",
+  ],
+  IN: [
+    "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa",
+    "Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala",
+    "Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland",
+    "Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura",
+    "Uttar Pradesh","Uttarakhand","West Bengal","Delhi","Jammu and Kashmir",
+    "Ladakh","Puducherry","Chandigarh",
+  ],
+  BD: [
+    "Barisal","Chittagong","Dhaka","Khulna","Mymensingh","Rajshahi","Rangpur","Sylhet",
+  ],
+};
+
+// Major cities per state/province. Missing => fall back to text input.
+export const CITIES_BY_STATE: Record<string, Record<string, string[]>> = {
+  US: {
+    California: ["Los Angeles","San Francisco","San Diego","San Jose","Sacramento","Oakland","Fresno","Long Beach","Anaheim","Redding"],
+    "New York": ["New York City","Buffalo","Rochester","Yonkers","Syracuse","Albany"],
+    Texas: ["Houston","Dallas","Austin","San Antonio","Fort Worth","El Paso","Arlington","Plano"],
+    Florida: ["Miami","Orlando","Tampa","Jacksonville","St. Petersburg","Fort Lauderdale","Tallahassee"],
+    Illinois: ["Chicago","Aurora","Naperville","Springfield","Peoria"],
+    Washington: ["Seattle","Spokane","Tacoma","Bellevue","Vancouver"],
+    Georgia: ["Atlanta","Augusta","Savannah","Athens","Columbus"],
+    Massachusetts: ["Boston","Worcester","Springfield","Cambridge"],
+    Pennsylvania: ["Philadelphia","Pittsburgh","Allentown","Erie"],
+    Arizona: ["Phoenix","Tucson","Mesa","Scottsdale","Chandler"],
+    Nevada: ["Las Vegas","Henderson","Reno","North Las Vegas"],
+    Colorado: ["Denver","Colorado Springs","Aurora","Boulder","Fort Collins"],
+    "New Jersey": ["Newark","Jersey City","Paterson","Elizabeth","Trenton"],
+    Ohio: ["Columbus","Cleveland","Cincinnati","Toledo","Akron"],
+    Michigan: ["Detroit","Grand Rapids","Ann Arbor","Lansing"],
+    Virginia: ["Virginia Beach","Norfolk","Richmond","Arlington","Alexandria"],
+    "North Carolina": ["Charlotte","Raleigh","Greensboro","Durham","Winston-Salem"],
+  },
+  CA: {
+    Ontario: ["Toronto","Ottawa","Mississauga","Brampton","Hamilton","London","Markham"],
+    Quebec: ["Montreal","Quebec City","Laval","Gatineau","Sherbrooke"],
+    "British Columbia": ["Vancouver","Victoria","Surrey","Burnaby","Richmond","Kelowna"],
+    Alberta: ["Calgary","Edmonton","Red Deer","Lethbridge"],
+    Manitoba: ["Winnipeg","Brandon"],
+    Saskatchewan: ["Saskatoon","Regina"],
+    "Nova Scotia": ["Halifax","Sydney"],
+  },
+  GB: {
+    England: ["London","Manchester","Birmingham","Liverpool","Leeds","Bristol","Sheffield","Newcastle"],
+    Scotland: ["Edinburgh","Glasgow","Aberdeen","Dundee"],
+    Wales: ["Cardiff","Swansea","Newport"],
+    "Northern Ireland": ["Belfast","Derry","Lisburn"],
+  },
+  AU: {
+    "New South Wales": ["Sydney","Newcastle","Wollongong"],
+    Victoria: ["Melbourne","Geelong","Ballarat"],
+    Queensland: ["Brisbane","Gold Coast","Cairns","Townsville"],
+    "Western Australia": ["Perth","Fremantle"],
+    "South Australia": ["Adelaide"],
+    Tasmania: ["Hobart","Launceston"],
+    "Australian Capital Territory": ["Canberra"],
+    "Northern Territory": ["Darwin","Alice Springs"],
+  },
+  AE: {
+    Dubai: ["Dubai","Jebel Ali"],
+    "Abu Dhabi": ["Abu Dhabi","Al Ain"],
+    Sharjah: ["Sharjah"],
+    Ajman: ["Ajman"],
+    Fujairah: ["Fujairah"],
+    "Ras Al Khaimah": ["Ras Al Khaimah"],
+    "Umm Al Quwain": ["Umm Al Quwain"],
+  },
+  IN: {
+    Maharashtra: ["Mumbai","Pune","Nagpur","Nashik","Aurangabad"],
+    Karnataka: ["Bengaluru","Mysuru","Mangaluru","Hubballi"],
+    "Tamil Nadu": ["Chennai","Coimbatore","Madurai","Tiruchirappalli"],
+    Delhi: ["New Delhi","Delhi"],
+    "West Bengal": ["Kolkata","Howrah","Siliguri"],
+    Telangana: ["Hyderabad","Warangal"],
+    Gujarat: ["Ahmedabad","Surat","Vadodara","Rajkot"],
+    "Uttar Pradesh": ["Lucknow","Kanpur","Noida","Ghaziabad","Varanasi","Agra"],
+    Rajasthan: ["Jaipur","Jodhpur","Udaipur"],
+    Punjab: ["Ludhiana","Amritsar","Chandigarh"],
+  },
+  BD: {
+    Dhaka: ["Dhaka","Narayanganj","Gazipur"],
+    Chittagong: ["Chittagong","Cox's Bazar","Comilla"],
+    Sylhet: ["Sylhet"],
+    Rajshahi: ["Rajshahi"],
+    Khulna: ["Khulna","Jessore"],
+    Barisal: ["Barisal"],
+    Rangpur: ["Rangpur"],
+    Mymensingh: ["Mymensingh"],
+  },
+};
+
+// Postal code validation regex per country. Missing => no client-side validation.
+export const POSTAL_REGEX: Record<string, RegExp> = {
+  US: /^\d{5}(-\d{4})?$/,
+  CA: /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/,
+  GB: /^[A-Za-z]{1,2}\d[A-Za-z\d]?\s*\d[A-Za-z]{2}$/,
+  AU: /^\d{4}$/,
+  IN: /^\d{6}$/,
+  BD: /^\d{4}$/,
+  AE: /^\d{5}$/,
+  DE: /^\d{5}$/,
+  FR: /^\d{5}$/,
+  IT: /^\d{5}$/,
+  ES: /^\d{5}$/,
+  NL: /^\d{4}\s?[A-Za-z]{2}$/,
+  IE: /^[A-Za-z]\d{2}\s?[A-Za-z0-9]{4}$/,
+  MX: /^\d{5}$/,
+  BR: /^\d{5}-?\d{3}$/,
+  JP: /^\d{3}-?\d{4}$/,
+  SG: /^\d{6}$/,
+  NZ: /^\d{4}$/,
+  PK: /^\d{5}$/,
+  PH: /^\d{4}$/,
+  SA: /^\d{5}$/,
+  ZA: /^\d{4}$/,
+};
+
+export const POSTAL_LABEL: Record<string, string> = {
+  US: "ZIP Code",
+  CA: "Postal Code",
+  GB: "Postcode",
+};
