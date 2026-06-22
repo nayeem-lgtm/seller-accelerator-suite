@@ -17,19 +17,19 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-type CompareRow = { feature: string; ray: string; other: string };
+type CompareRow = { feature: string; ray: string };
 const COMPARE_ROWS: CompareRow[] = [
-  { feature: "Marketplace Setup Support", ray: "Included", other: "Often limited" },
-  { feature: "Product Research", ray: "Included", other: "May be basic" },
-  { feature: "Listing Management", ray: "Included", other: "Sometimes limited" },
-  { feature: "Supplier Coordination", ray: "Included", other: "Often not included" },
-  { feature: "Order Management Support", ray: "Included", other: "Limited or separate" },
-  { feature: "Customer Support Workflow", ray: "Included", other: "Often limited" },
-  { feature: "Content Strategy Guidance", ray: "Included where applicable", other: "Usually separate" },
-  { feature: "Dedicated Account Support", ray: "Included", other: "May be unavailable" },
-  { feature: "Transparent Reporting", ray: "Monthly reporting", other: "Often unclear" },
-  { feature: "Scaling Strategy", ray: "Included", other: "May be separate" },
-  { feature: "Ad Management", ray: "Available where applicable", other: "Usually separate or limited" },
+  { feature: "Marketplace Setup Support", ray: "Included" },
+  { feature: "Product Research", ray: "Included" },
+  { feature: "Listing Management", ray: "Included" },
+  { feature: "Supplier Coordination", ray: "Included" },
+  { feature: "Order Management Support", ray: "Included" },
+  { feature: "Customer Support Workflow", ray: "Included" },
+  { feature: "Content Strategy Guidance", ray: "Included where applicable" },
+  { feature: "Dedicated Account Support", ray: "Included" },
+  { feature: "Transparent Reporting", ray: "Monthly reporting" },
+  { feature: "Scaling Strategy", ray: "Included" },
+  { feature: "Ad Management", ray: "Available where applicable" },
 ];
 
 function PricingPage() {
@@ -52,32 +52,31 @@ function PricingPage() {
       >
         {/* Desktop table */}
         <div className="hidden md:block">
-          <div className="rounded-3xl border border-border bg-white shadow-[0_20px_60px_-30px_rgba(15,23,42,0.18)] overflow-hidden">
-            <div className="grid grid-cols-12 bg-gradient-to-r from-primary/[0.06] via-white to-white px-6 py-4 border-b border-border">
-              <div className="col-span-5 text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground">What's Included</div>
-              <div className="col-span-4 flex items-center gap-2 text-sm font-bold text-primary">
+          <div className="rounded-3xl border border-border bg-white shadow-[0_24px_80px_-30px_rgba(15,23,42,0.18)] overflow-hidden">
+            <div className="grid grid-cols-12 bg-gradient-to-r from-primary/[0.08] via-primary/[0.03] to-white px-8 py-5 border-b border-border items-center">
+              <div className="col-span-6 text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground">What's Included</div>
+              <div className="col-span-3 flex items-center justify-center gap-2 text-sm font-bold text-primary">
                 <Sparkles className="h-4 w-4" /> Ray Ecommerce
               </div>
-              <div className="col-span-3 text-sm font-bold text-foreground/70">Other Providers</div>
+              <div className="col-span-3 text-center text-sm font-bold text-foreground/70">Other Providers</div>
             </div>
             <div>
               {COMPARE_ROWS.map((row, i) => (
                 <div
                   key={row.feature}
-                  className={`grid grid-cols-12 items-center px-6 py-4 text-sm ${i % 2 === 0 ? "bg-white" : "bg-muted/30"} border-b border-border/60 last:border-b-0`}
+                  className={`grid grid-cols-12 items-center px-8 py-5 text-sm ${i % 2 === 0 ? "bg-white" : "bg-muted/25"} border-b border-border/50 last:border-b-0`}
                 >
-                  <div className="col-span-5 font-medium text-foreground">{row.feature}</div>
-                  <div className="col-span-4 flex items-center gap-2 text-foreground/85">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                  <div className="col-span-6 font-medium text-foreground">{row.feature}</div>
+                  <div className="col-span-3 flex items-center justify-center gap-2 text-foreground/85">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
                       <CheckCircle2 className="h-4 w-4" />
                     </span>
-                    {row.ray}
+                    <span className="font-medium">{row.ray}</span>
                   </div>
-                  <div className="col-span-3 flex items-center gap-2 text-muted-foreground">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
+                  <div className="col-span-3 flex items-center justify-center text-muted-foreground">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
                       <X className="h-4 w-4" />
                     </span>
-                    {row.other}
                   </div>
                 </div>
               ))}
@@ -90,19 +89,23 @@ function PricingPage() {
           {COMPARE_ROWS.map((row) => (
             <div key={row.feature} className="rounded-2xl border border-border bg-white p-5 shadow-sm">
               <div className="text-sm font-bold text-foreground">{row.feature}</div>
-              <div className="mt-3 grid grid-cols-1 gap-2">
-                <div className="flex items-start gap-2 rounded-xl bg-primary/[0.06] border border-primary/15 p-3">
-                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <div className="text-xs">
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="flex flex-col items-center justify-center gap-2 rounded-xl bg-primary/[0.06] border border-primary/15 p-4">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </span>
+                  <div className="text-xs text-center">
                     <div className="font-bold text-primary">Ray Ecommerce</div>
                     <div className="text-foreground/80">{row.ray}</div>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 rounded-xl bg-muted/50 border border-border p-3">
-                  <X className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                  <div className="text-xs">
+                <div className="flex flex-col items-center justify-center gap-2 rounded-xl bg-muted/50 border border-border p-4">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
+                    <X className="h-4 w-4" />
+                  </span>
+                  <div className="text-xs text-center">
                     <div className="font-bold text-foreground/70">Other Providers</div>
-                    <div className="text-muted-foreground">{row.other}</div>
+                    <div className="text-muted-foreground">—</div>
                   </div>
                 </div>
               </div>
