@@ -4,6 +4,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Send, CheckCircle2 } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -237,6 +238,15 @@ function ContactPage() {
           <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Book a quick call with our team to discuss your marketplace setup, service option, and next steps.
           </p>
+          <div className="mt-6 mx-auto max-w-2xl rounded-2xl border border-primary/15 bg-white/80 backdrop-blur px-5 py-3 shadow-sm flex items-start gap-3 text-left">
+            <div className="h-9 w-9 rounded-xl brand-gradient grid place-items-center text-white shadow-md shrink-0">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
+            <p className="text-sm text-foreground/80">
+              Your inquiry is reviewed by the professional team behind{" "}
+              <span className="font-bold text-primary">Ray Advertising</span> to ensure timely support and business guidance.
+            </p>
+          </div>
         </div>
       </section>
 
