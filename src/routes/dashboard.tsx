@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, FileText, CreditCard, LifeBuoy, CheckCircle2, Circle, Upload } from "lucide-react";
+import { Loader2, FileText, CreditCard, LifeBuoy, CheckCircle2, Circle, Upload, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ function DashboardPage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/login" });
@@ -58,6 +59,9 @@ function DashboardPage() {
         setProfile(data as Profile | null);
         setLoading(false);
       });
+    supabase
+      .rpc("has_role", { _user_id: user.id, _role: "admin" })
+      .then(({ data }) => setIsAdmin(Boolean(data)));
   }, [user]);
 
   if (authLoading || loading || !user) {
@@ -82,6 +86,13 @@ function DashboardPage() {
           <p className="mt-2 text-sm text-muted-foreground">
             Manage your marketplace onboarding, documents, service status, and Ray Ecommerce support from one secure dashboard.
           </p>
+          {isAdmin && (
+            <div className="mt-4">
+              <Button asChild className="rounded-full brand-gradient text-white btn-glow">
+                <Link to="/admin"><Shield className="h-4 w-4 mr-2" />Open Admin Panel</Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
