@@ -13,6 +13,8 @@ import {
 import {
   MultiPlatformExistingForm,
   AccountCreationForm,
+  getRequiredIdUploadKeys,
+  type IdUploadKey,
 } from "@/components/onboarding/PlatformForms";
 import { ContractStep } from "@/components/onboarding/ContractStep";
 import { PaymentStep } from "@/components/onboarding/PaymentStep";
@@ -61,6 +63,13 @@ function Onboarding() {
   const [signature, setSignature] = useState<string | null>(null);
   const [agreed1, setAgreed1] = useState(false);
   const [agreed2, setAgreed2] = useState(false);
+  // Per-platform ID upload state for the account-creation flow
+  const [idUploads, setIdUploads] = useState<Partial<Record<IdUploadKey, File[]>>>({});
+  const [showUploadErrors, setShowUploadErrors] = useState(false);
+  const setIdUpload = (key: IdUploadKey, files: File[]) => {
+    setIdUploads((prev) => ({ ...prev, [key]: files }));
+    if (files.length > 0) setShowUploadErrors(false);
+  };
 
   // Preselect plan from pricing CTAs, or jump straight to payment from a profit dashboard CTA
   useEffect(() => {
@@ -132,6 +141,12 @@ function Onboarding() {
         !!authorized[p]
       );
     });
+
+  // Validate that the create-account ID uploads are complete based on selected ID type
+  const requiredIdUploadKeys = getRequiredIdUploadKeys(form.idType || "");
+  const createIdUploadsValid =
+    requiredIdUploadKeys.length > 0 &&
+    requiredIdUploadKeys.every((k) => (idUploads[k]?.length ?? 0) > 0);
 
   return (
     <section className="relative py-12 md:py-20 overflow-hidden">
@@ -329,7 +344,14 @@ function Onboarding() {
                   setAuthorized={setPlatformAuthorized}
                 />
               ) : (
-                <AccountCreationForm platform={primaryPlatform} state={form} set={setField} />
+                <AccountCreationForm
+                  platform={primaryPlatform}
+                  state={form}
+                  set={setField}
+                  idUploads={idUploads}
+                  setIdUpload={setIdUpload}
+                  showUploadErrors={showUploadErrors}
+                />
               )}
 
               <div className="flex gap-3 pt-2">
@@ -339,6 +361,10 @@ function Onboarding() {
                 <Button
                   disabled={branch === "existing" && !existingDetailsValid}
                   onClick={() => {
+                    if (branch === "create" && !createIdUploadsValid) {
+                      setShowUploadErrors(true);
+                      return;
+                    }
                     setClientName(form.fullName || clientName);
                     setStage("contract");
                   }}
