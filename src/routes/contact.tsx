@@ -259,7 +259,7 @@ function QueryForm() {
           {errors.message && <p className="mt-1 text-xs text-destructive">{errors.message}</p>}
         </div>
 
-        <Button type="submit" className="w-full h-12 rounded-full brand-gradient text-white btn-glow text-base font-bold">
+        <Button type="submit" disabled={submitting} className="w-full h-12 rounded-full brand-gradient text-white btn-glow text-base font-bold">
           {submitting ? (
             <>
               <span className="mr-2 h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
