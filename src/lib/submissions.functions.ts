@@ -100,7 +100,7 @@ export const submitOnboarding = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const sb = getServerClient();
     const { data: result, error } = await sb.rpc("submit_onboarding", {
-      p: data as unknown as Record<string, unknown>,
+      p: data as never,
     });
     if (error || !result) {
       console.error("[submitOnboarding]", error);
