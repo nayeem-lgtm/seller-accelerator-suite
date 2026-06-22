@@ -3,6 +3,7 @@ import { ArrowRight, ShieldCheck, Sparkles, Target, Users, Compass, Award, Check
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/site/Section";
 import { PlatformLogo } from "@/components/site/PlatformLogo";
+import { BackedByRaySection } from "@/components/site/PoweredByRay";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -136,6 +137,8 @@ function AboutPage() {
         </div>
       </Section>
 
+      {/* BACKED BY RAY ADVERTISING */}
+      <BackedByRaySection />
 
       {/* WHY SELLERS CHOOSE US */}
       <Section>
