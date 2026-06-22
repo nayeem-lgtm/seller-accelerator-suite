@@ -248,29 +248,17 @@ export function FileUploadBox({
   label,
   required,
   accept = ".pdf,.jpg,.jpeg,.png,.xlsx,.docx",
-  files: filesProp,
-  onFilesChange,
-  error,
 }: {
   label: string;
   required?: boolean;
   accept?: string;
-  files?: File[];
-  onFilesChange?: (files: File[]) => void;
-  error?: string;
 }) {
-  const [internalFiles, setInternalFiles] = useState<File[]>([]);
-  const isControlled = filesProp !== undefined;
-  const files = isControlled ? filesProp! : internalFiles;
-  const updateFiles = (next: File[]) => {
-    if (!isControlled) setInternalFiles(next);
-    onFilesChange?.(next);
-  };
+  const [files, setFiles] = useState<File[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const f = Array.from(e.dataTransfer.files);
-    if (f.length) updateFiles([...files, ...f]);
+    if (f.length) setFiles((prev) => [...prev, ...f]);
   };
   return (
     <div>
@@ -281,13 +269,9 @@ export function FileUploadBox({
         onDragOver={(e) => e.preventDefault()}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
-        className={`cursor-pointer rounded-xl border-2 border-dashed transition p-4 text-center ${
-          error
-            ? "border-destructive/60 bg-destructive/[0.04] hover:border-destructive"
-            : "border-border bg-muted/30 hover:border-primary/50 hover:bg-primary/[0.03]"
-        }`}
+        className="cursor-pointer rounded-xl border-2 border-dashed border-border bg-muted/30 hover:border-primary/50 hover:bg-primary/[0.03] transition p-4 text-center"
       >
-        <UploadCloud className={`h-5 w-5 mx-auto ${error ? "text-destructive" : "text-primary"}`} />
+        <UploadCloud className="h-5 w-5 mx-auto text-primary" />
         <div className="mt-1 text-xs font-medium">Drop files or click to upload</div>
         <div className="text-[10px] text-muted-foreground mt-0.5">{accept.replaceAll(".", "").toUpperCase()}</div>
         <input
@@ -298,13 +282,10 @@ export function FileUploadBox({
           className="hidden"
           onChange={(e) => {
             const f = Array.from(e.target.files ?? []);
-            if (f.length) updateFiles([...files, ...f]);
+            if (f.length) setFiles((prev) => [...prev, ...f]);
           }}
         />
       </div>
-      {error && (
-        <p className="mt-1.5 text-xs text-destructive font-medium">{error}</p>
-      )}
       {files.length > 0 && (
         <ul className="mt-2 space-y-1">
           {files.map((f, i) => (
@@ -317,7 +298,7 @@ export function FileUploadBox({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  updateFiles(files.filter((_, j) => j !== i));
+                  setFiles((prev) => prev.filter((_, j) => j !== i));
                 }}
                 className="text-muted-foreground hover:text-destructive"
               >
