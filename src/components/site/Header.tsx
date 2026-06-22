@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { PoweredByRayBar } from "@/components/site/PoweredByRay";
 
 const SERVICE_LINKS: { to: string; label: string; description: string; platform: "walmart" | "tiktok" | "ebay" }[] = [
   { to: "/walmart", label: "Walmart", description: "Walmart Marketplace store launch & operations", platform: "walmart" },
@@ -76,6 +77,7 @@ export function SiteHeader() {
           : "bg-transparent"
       }`}
     >
+      <PoweredByRayBar />
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 lg:px-8">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src={logoAsset.url} alt="Ray Ecommerce" className="h-6 md:h-7 w-auto object-contain" />
