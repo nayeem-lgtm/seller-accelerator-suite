@@ -84,27 +84,21 @@ function PricingPage() {
 
         {/* Mobile stacked cards */}
         <div className="md:hidden space-y-3">
-          {COMPARE_ROWS.map((row) => (
-            <div key={row.feature} className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-              <div className="text-sm font-bold text-foreground">{row.feature}</div>
+          {COMPARE_FEATURES.map((feature) => (
+            <div key={feature} className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+              <div className="text-sm font-bold text-foreground">{feature}</div>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="flex flex-col items-center justify-center gap-2 rounded-xl bg-primary/[0.06] border border-primary/15 p-4">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0" aria-label="Included">
                     <CheckCircle2 className="h-4 w-4" />
                   </span>
-                  <div className="text-xs text-center">
-                    <div className="font-bold text-primary">Ray Ecommerce</div>
-                    <div className="text-foreground/80">{row.ray}</div>
-                  </div>
+                  <div className="text-xs font-bold text-primary">Ray Ecommerce</div>
                 </div>
                 <div className="flex flex-col items-center justify-center gap-2 rounded-xl bg-muted/50 border border-border p-4">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground shrink-0" aria-label="Not included">
                     <X className="h-4 w-4" />
                   </span>
-                  <div className="text-xs text-center">
-                    <div className="font-bold text-foreground/70">Other Providers</div>
-                    <div className="text-muted-foreground">—</div>
-                  </div>
+                  <div className="text-xs font-bold text-foreground/70">Other Providers</div>
                 </div>
               </div>
             </div>
