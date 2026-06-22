@@ -1,16 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendlyEmbed } from "@/components/site/FreeSampleSection";
-import { useState } from "react";
-import { z } from "zod";
-import { toast } from "sonner";
-import { Send, CheckCircle2 } from "lucide-react";
-import { ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ShieldCheck, Sparkles, Clock, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
