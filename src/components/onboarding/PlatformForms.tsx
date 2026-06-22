@@ -453,33 +453,35 @@ export function AccountCreationForm({
   platform,
   state,
   set,
+  errors = {},
 }: {
   platform: PlatformKey;
   state: Record<string, string>;
   set: (k: string, v: string) => void;
+  errors?: Record<string, string>;
 }) {
   return (
     <div className="space-y-4">
-      {platform === "walmart" && <WalmartCreate state={state} set={set} />}
-      {platform === "tiktok" && <TikTokCreate state={state} set={set} />}
-      {platform === "ebay" && <EbayCreate state={state} set={set} />}
+      {platform === "walmart" && <WalmartCreate state={state} set={set} errors={errors} />}
+      {platform === "tiktok" && <TikTokCreate state={state} set={set} errors={errors} />}
+      {platform === "ebay" && <EbayCreate state={state} set={set} errors={errors} />}
       <PrivacyNote />
     </div>
   );
 }
 
-function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k: string, v: string) => void }) {
+function WalmartCreate({ state, set, errors = {} }: { state: Record<string, string>; set: (k: string, v: string) => void; errors?: Record<string, string> }) {
   return (
     <>
       <CollapsibleCard index={1} title="Personal Information" defaultOpen>
-        <TextField label="Full legal name" value={state.fullName || ""} onChange={(v) => set("fullName", v)} required />
-        <TextField label="Date of birth" type="date" value={state.dob || ""} onChange={(v) => set("dob", v)} required />
-        <TextField label="Phone number" value={state.phone || ""} onChange={(v) => set("phone", v)} required />
-        <TextField label="Email address" type="email" value={state.email || ""} onChange={(v) => set("email", v)} required />
-        <TextField label="Residential address" full value={state.address || ""} onChange={(v) => set("address", v)} required />
-        <Field label="Government ID type" required>
+        <TextField label="Full legal name" value={state.fullName || ""} onChange={(v) => set("fullName", v)} required error={errors.fullName} name="fullName" />
+        <TextField label="Date of birth" type="date" value={state.dob || ""} onChange={(v) => set("dob", v)} required error={errors.dob} name="dob" />
+        <TextField label="Phone number" value={state.phone || ""} onChange={(v) => set("phone", v)} required error={errors.phone} name="phone" />
+        <TextField label="Email address" type="email" value={state.email || ""} onChange={(v) => set("email", v)} required error={errors.email} name="email" />
+        <TextField label="Residential address" full value={state.address || ""} onChange={(v) => set("address", v)} required error={errors.address} name="address" />
+        <Field label="Government ID type" required error={errors.idType} name="idType">
           <Select value={state.idType || ""} onValueChange={(v) => set("idType", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+            <SelectTrigger className={errors.idType ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="dl">Driver License</SelectItem>
               <SelectItem value="passport">Passport</SelectItem>
@@ -487,20 +489,20 @@ function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k:
             </SelectContent>
           </Select>
         </Field>
-        <TextField label="Government ID number" value={state.idNumber || ""} onChange={(v) => set("idNumber", v)} required />
-        <TextField label="ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required />
+        <TextField label="Government ID number" value={state.idNumber || ""} onChange={(v) => set("idNumber", v)} required error={errors.idNumber} name="idNumber" />
+        <TextField label="ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required error={errors.idExp} name="idExp" />
         <IdUploads idType={state.idType || ""} />
       </CollapsibleCard>
 
       <CollapsibleCard index={2} title="Business Information">
-        <TextField label="Legal business name" value={state.bizName || ""} onChange={(v) => set("bizName", v)} required />
+        <TextField label="Legal business name" value={state.bizName || ""} onChange={(v) => set("bizName", v)} required error={errors.bizName} name="bizName" />
         <TextField label="DBA name (if any)" value={state.dba || ""} onChange={(v) => set("dba", v)} />
-        <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required />
-        <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required />
-        <BusinessAddressFields state={state} set={set} />
-        <Field label="Business entity classification" required>
+        <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required error={errors.bizEmail} name="bizEmail" />
+        <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required error={errors.bizPhone} name="bizPhone" />
+        <BusinessAddressFields state={state} set={set} errors={errors} />
+        <Field label="Business entity classification" required error={errors.entity} name="entity">
           <Select value={state.entity || ""} onValueChange={(v) => set("entity", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+            <SelectTrigger className={errors.entity ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="llc">LLC</SelectItem>
               <SelectItem value="corp">Corporation</SelectItem>
@@ -510,27 +512,27 @@ function WalmartCreate({ state, set }: { state: Record<string, string>; set: (k:
             </SelectContent>
           </Select>
         </Field>
-        <TextField label="EIN / Business Tax ID" value={state.ein || ""} onChange={(v) => set("ein", v)} required />
+        <TextField label="EIN / Business Tax ID" value={state.ein || ""} onChange={(v) => set("ein", v)} required error={errors.ein} name="ein" />
         <TextField label="Business license number" value={state.license || ""} onChange={(v) => set("license", v)} />
-        <TextField label="State of registration" value={state.state || ""} onChange={(v) => set("state", v)} required />
+        <TextField label="State of registration" value={state.state || ""} onChange={(v) => set("state", v)} required error={errors.state} name="state" />
         <TextField label="Website or store link" full value={state.website || ""} onChange={(v) => set("website", v)} />
       </CollapsibleCard>
     </>
   );
 }
 
-function TikTokCreate({ state, set }: { state: Record<string, string>; set: (k: string, v: string) => void }) {
+function TikTokCreate({ state, set, errors = {} }: { state: Record<string, string>; set: (k: string, v: string) => void; errors?: Record<string, string> }) {
   return (
     <>
       <CollapsibleCard index={1} title="Personal Information" defaultOpen>
-        <TextField label="Full legal name" value={state.fullName || ""} onChange={(v) => set("fullName", v)} required />
-        <TextField label="Date of birth" type="date" value={state.dob || ""} onChange={(v) => set("dob", v)} required />
-        <TextField label="Phone number" value={state.phone || ""} onChange={(v) => set("phone", v)} required />
-        <TextField label="Email address" type="email" value={state.email || ""} onChange={(v) => set("email", v)} required />
-        <TextField label="Residential address" full value={state.address || ""} onChange={(v) => set("address", v)} required />
-        <Field label="Government ID type" required>
+        <TextField label="Full legal name" value={state.fullName || ""} onChange={(v) => set("fullName", v)} required error={errors.fullName} name="fullName" />
+        <TextField label="Date of birth" type="date" value={state.dob || ""} onChange={(v) => set("dob", v)} required error={errors.dob} name="dob" />
+        <TextField label="Phone number" value={state.phone || ""} onChange={(v) => set("phone", v)} required error={errors.phone} name="phone" />
+        <TextField label="Email address" type="email" value={state.email || ""} onChange={(v) => set("email", v)} required error={errors.email} name="email" />
+        <TextField label="Residential address" full value={state.address || ""} onChange={(v) => set("address", v)} required error={errors.address} name="address" />
+        <Field label="Government ID type" required error={errors.idType} name="idType">
           <Select value={state.idType || ""} onValueChange={(v) => set("idType", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+            <SelectTrigger className={errors.idType ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="dl">Driver License</SelectItem>
               <SelectItem value="passport">Passport</SelectItem>
@@ -538,20 +540,20 @@ function TikTokCreate({ state, set }: { state: Record<string, string>; set: (k: 
             </SelectContent>
           </Select>
         </Field>
-        <TextField label="ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required />
-        <TextField label="SSN last 4 digits or ITIN" value={state.ssnLast4 || ""} onChange={(v) => set("ssnLast4", v)} required hint="Used for tax identity verification only." />
+        <TextField label="ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required error={errors.idExp} name="idExp" />
+        <TextField label="SSN last 4 digits or ITIN" value={state.ssnLast4 || ""} onChange={(v) => set("ssnLast4", v)} required hint="Used for tax identity verification only." error={errors.ssnLast4} name="ssnLast4" />
         <IdUploads idType={state.idType || ""} />
       </CollapsibleCard>
 
       <CollapsibleCard index={2} title="Business Information">
-        <TextField label="Legal business name" value={state.bizName || ""} onChange={(v) => set("bizName", v)} required />
+        <TextField label="Legal business name" value={state.bizName || ""} onChange={(v) => set("bizName", v)} required error={errors.bizName} name="bizName" />
         <TextField label="DBA name (if any)" value={state.dba || ""} onChange={(v) => set("dba", v)} />
-        <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required />
-        <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required />
-        <BusinessAddressFields state={state} set={set} />
-        <Field label="Business entity classification" required>
+        <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required error={errors.bizEmail} name="bizEmail" />
+        <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required error={errors.bizPhone} name="bizPhone" />
+        <BusinessAddressFields state={state} set={set} errors={errors} />
+        <Field label="Business entity classification" required error={errors.entity} name="entity">
           <Select value={state.entity || ""} onValueChange={(v) => set("entity", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+            <SelectTrigger className={errors.entity ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="llc">LLC</SelectItem>
               <SelectItem value="corp">Corporation</SelectItem>
@@ -561,28 +563,28 @@ function TikTokCreate({ state, set }: { state: Record<string, string>; set: (k: 
             </SelectContent>
           </Select>
         </Field>
-        <TextField label="EIN / Business Tax ID" value={state.ein || ""} onChange={(v) => set("ein", v)} required />
+        <TextField label="EIN / Business Tax ID" value={state.ein || ""} onChange={(v) => set("ein", v)} required error={errors.ein} name="ein" />
         <TextField label="Business license number" value={state.license || ""} onChange={(v) => set("license", v)} />
-        <TextField label="State of registration" value={state.state || ""} onChange={(v) => set("state", v)} required />
+        <TextField label="State of registration" value={state.state || ""} onChange={(v) => set("state", v)} required error={errors.state} name="state" />
         <TextField label="Website or store link" full value={state.website || ""} onChange={(v) => set("website", v)} />
       </CollapsibleCard>
     </>
   );
 }
 
-function EbayCreate({ state, set }: { state: Record<string, string>; set: (k: string, v: string) => void }) {
+function EbayCreate({ state, set, errors = {} }: { state: Record<string, string>; set: (k: string, v: string) => void; errors?: Record<string, string> }) {
   return (
     <>
       <CollapsibleCard index={1} title="Personal Information" defaultOpen>
-        <TextField label="Full legal name" value={state.fullName || ""} onChange={(v) => set("fullName", v)} required />
-        <TextField label="Date of birth" type="date" value={state.dob || ""} onChange={(v) => set("dob", v)} required />
-        <TextField label="Residential address" full value={state.address || ""} onChange={(v) => set("address", v)} required />
-        <TextField label="Phone number" value={state.phone || ""} onChange={(v) => set("phone", v)} required />
-        <TextField label="Email address" type="email" value={state.email || ""} onChange={(v) => set("email", v)} required />
-        <TextField label="SSN / EIN / ITIN" value={state.taxId || ""} onChange={(v) => set("taxId", v)} required hint="Use SSN for individuals, EIN for business sellers." />
-        <Field label="Government ID type" required>
+        <TextField label="Full legal name" value={state.fullName || ""} onChange={(v) => set("fullName", v)} required error={errors.fullName} name="fullName" />
+        <TextField label="Date of birth" type="date" value={state.dob || ""} onChange={(v) => set("dob", v)} required error={errors.dob} name="dob" />
+        <TextField label="Residential address" full value={state.address || ""} onChange={(v) => set("address", v)} required error={errors.address} name="address" />
+        <TextField label="Phone number" value={state.phone || ""} onChange={(v) => set("phone", v)} required error={errors.phone} name="phone" />
+        <TextField label="Email address" type="email" value={state.email || ""} onChange={(v) => set("email", v)} required error={errors.email} name="email" />
+        <TextField label="SSN / EIN / ITIN" value={state.taxId || ""} onChange={(v) => set("taxId", v)} required hint="Use SSN for individuals, EIN for business sellers." error={errors.taxId} name="taxId" />
+        <Field label="Government ID type" required error={errors.idType} name="idType">
           <Select value={state.idType || ""} onValueChange={(v) => set("idType", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+            <SelectTrigger className={errors.idType ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="dl">Driver License</SelectItem>
               <SelectItem value="passport">Passport</SelectItem>
@@ -590,19 +592,19 @@ function EbayCreate({ state, set }: { state: Record<string, string>; set: (k: st
             </SelectContent>
           </Select>
         </Field>
-        <TextField label="Government ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required />
+        <TextField label="Government ID expiration date" type="date" value={state.idExp || ""} onChange={(v) => set("idExp", v)} required error={errors.idExp} name="idExp" />
         <IdUploads idType={state.idType || ""} />
       </CollapsibleCard>
 
       <CollapsibleCard index={2} title="Business Information">
-        <TextField label="Legal business name" value={state.bizName || ""} onChange={(v) => set("bizName", v)} required />
+        <TextField label="Legal business name" value={state.bizName || ""} onChange={(v) => set("bizName", v)} required error={errors.bizName} name="bizName" />
         <TextField label="DBA name (if any)" value={state.dba || ""} onChange={(v) => set("dba", v)} />
-        <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required />
-        <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required />
-        <BusinessAddressFields state={state} set={set} />
-        <Field label="Business entity classification" required>
+        <TextField label="Business email" type="email" value={state.bizEmail || ""} onChange={(v) => set("bizEmail", v)} required error={errors.bizEmail} name="bizEmail" />
+        <TextField label="Business phone" value={state.bizPhone || ""} onChange={(v) => set("bizPhone", v)} required error={errors.bizPhone} name="bizPhone" />
+        <BusinessAddressFields state={state} set={set} errors={errors} />
+        <Field label="Business entity classification" required error={errors.entity} name="entity">
           <Select value={state.entity || ""} onValueChange={(v) => set("entity", v)}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+            <SelectTrigger className={errors.entity ? "border-destructive focus:ring-destructive" : undefined}><SelectValue placeholder="Select" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="llc">LLC</SelectItem>
               <SelectItem value="corp">Corporation</SelectItem>
@@ -612,9 +614,9 @@ function EbayCreate({ state, set }: { state: Record<string, string>; set: (k: st
             </SelectContent>
           </Select>
         </Field>
-        <TextField label="EIN / Business Tax ID" value={state.ein || ""} onChange={(v) => set("ein", v)} required />
+        <TextField label="EIN / Business Tax ID" value={state.ein || ""} onChange={(v) => set("ein", v)} required error={errors.ein} name="ein" />
         <TextField label="Business license number" value={state.license || ""} onChange={(v) => set("license", v)} />
-        <TextField label="State of registration" value={state.state || ""} onChange={(v) => set("state", v)} required />
+        <TextField label="State of registration" value={state.state || ""} onChange={(v) => set("state", v)} required error={errors.state} name="state" />
         <TextField label="Website or store link" full value={state.website || ""} onChange={(v) => set("website", v)} />
       </CollapsibleCard>
     </>
