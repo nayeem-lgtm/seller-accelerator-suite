@@ -550,6 +550,31 @@ export type Database = {
         Returns: boolean
       }
       is_owner: { Args: { _uid: string }; Returns: boolean }
+      submit_ai_lead: {
+        Args: {
+          p_email: string
+          p_message: string
+          p_name: string
+          p_phone: string
+          p_snippet: string
+          p_source_page: string
+        }
+        Returns: string
+      }
+      submit_contact_query: {
+        Args: {
+          p_country_code: string
+          p_email: string
+          p_full_name: string
+          p_marketplace: string
+          p_message: string
+          p_phone: string
+          p_query_type: string
+          p_source_page: string
+        }
+        Returns: string
+      }
+      submit_onboarding: { Args: { p: Json }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"

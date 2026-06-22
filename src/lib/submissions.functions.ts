@@ -33,20 +33,16 @@ export const submitContactQuery = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => ContactInput.parse(input))
   .handler(async ({ data }) => {
     const sb = getServerClient();
-    const { data: row, error } = await sb
-      .from("contact_queries")
-      .insert({
-        full_name: data.fullName,
-        email: data.email,
-        phone_country_code: data.countryCode,
-        phone_number: data.phone,
-        selected_service: data.marketplace ?? null,
-        query_type: data.queryType ?? null,
-        message: data.message,
-        source_page: data.sourcePage ?? null,
-      })
-      .select("id")
-      .single();
+    const { data: row, error } = await sb.rpc("submit_contact_query", {
+      p_full_name: data.fullName,
+      p_email: data.email,
+      p_country_code: data.countryCode,
+      p_phone: data.phone,
+      p_marketplace: data.marketplace ?? "",
+      p_query_type: data.queryType ?? "",
+      p_message: data.message,
+      p_source_page: data.sourcePage ?? "",
+    });
     if (error) {
       console.error("[submitContactQuery]", error);
       throw new Error("Could not submit your query. Please try again.");
@@ -64,7 +60,7 @@ export const submitContactQuery = createServerFn({ method: "POST" })
     } catch (e) {
       console.error("[notify] contact failed", e);
     }
-    return { id: row.id };
+    return { id: row as string };
   });
 
 /* ---------------- Seller onboarding bundle ---------------- */
@@ -103,90 +99,14 @@ export const submitOnboarding = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => OnboardingInput.parse(input))
   .handler(async ({ data }) => {
     const sb = getServerClient();
-    const platformLabel = data.platforms.length === 1 ? data.platforms[0] : "multiple";
-
-    // 1) plan selection
-    const planRes = await sb
-      .from("plan_selections")
-      .insert({
-        full_name: data.clientName,
-        email: data.clientEmail,
-        phone_country_code: data.countryCode,
-        phone_number: data.phone,
-        platform_selected: data.platforms[0],
-        plan_selected: data.platforms.join("+"),
-        payment_choice: "yes",
-      })
-      .select("id")
-      .single();
-    if (planRes.error) {
-      console.error("[submitOnboarding plan]", planRes.error);
-      throw new Error("Could not save your plan selection.");
-    }
-    const planId = planRes.data.id;
-
-    // 2) business credentials (only when address fields present)
-    let bcId: string | null = null;
-    if (data.addressLine1 && data.city && data.state && data.zipCode && data.country) {
-      const bcRes = await sb
-        .from("business_credentials")
-        .insert({
-          full_name: data.clientName,
-          email: data.clientEmail,
-          phone_country_code: data.countryCode,
-          phone_number: data.phone,
-          business_name: data.businessName ?? data.clientName,
-          address_line_1: data.addressLine1,
-          city: data.city,
-          state: data.state,
-          zip_code: data.zipCode,
-          country: data.country,
-          marketplace_platform: platformLabel,
-          seller_account_status: data.sellerAccountStatus ?? null,
-          notes: data.notes ?? null,
-        })
-        .select("id")
-        .single();
-      if (!bcRes.error) bcId = bcRes.data.id;
-      else console.error("[submitOnboarding bc]", bcRes.error);
-    }
-
-    // 3) contract
-    const contractRes = await sb
-      .from("contracts")
-      .insert({
-        client_name: data.clientName,
-        client_email: data.clientEmail,
-        platforms: data.platforms,
-        branch: data.branch,
-        total_amount: data.totalAmount,
-        signature_data_url: data.signatureDataUrl,
-        agreed_terms: data.agreedTerms,
-        agreed_authorization: data.agreedAuthorization,
-        plan_selection_id: planId,
-        business_credentials_id: bcId,
-      })
-      .select("id")
-      .single();
-    if (contractRes.error) {
-      console.error("[submitOnboarding contract]", contractRes.error);
-      throw new Error("Could not save your signed agreement.");
-    }
-    const contractId = contractRes.data.id;
-
-    // 4) payment record (pending until reconciled manually)
-    const payRes = await sb.from("payments").insert({
-      client_name: data.clientName,
-      client_email: data.clientEmail,
-      platforms: data.platforms,
-      amount: data.totalAmount,
-      currency: "USD",
-      payment_method: data.paymentMethod,
-      payment_status: "pending",
-      plan_selection_id: planId,
-      contract_id: contractId,
+    const { data: result, error } = await sb.rpc("submit_onboarding", {
+      p: data as never,
     });
-    if (payRes.error) console.error("[submitOnboarding payment]", payRes.error);
+    if (error || !result) {
+      console.error("[submitOnboarding]", error);
+      throw new Error("Could not save your onboarding submission.");
+    }
+    const { planId, contractId } = result as { planId: string; contractId: string };
 
     try {
       const { notifyOnboardingSubmission } = await import("./notify.server");
@@ -220,18 +140,14 @@ export const submitAiLead = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => AiLeadInput.parse(input))
   .handler(async ({ data }) => {
     const sb = getServerClient();
-    const { data: row, error } = await sb
-      .from("ai_leads")
-      .insert({
-        name: data.name ?? null,
-        email: data.email ?? null,
-        phone: data.phone ?? null,
-        message: data.message,
-        conversation_snippet: data.conversationSnippet ?? null,
-        source_page: data.sourcePage ?? null,
-      })
-      .select("id")
-      .single();
+    const { data: row, error } = await sb.rpc("submit_ai_lead", {
+      p_name: data.name ?? "",
+      p_email: data.email ?? "",
+      p_phone: data.phone ?? "",
+      p_message: data.message,
+      p_snippet: data.conversationSnippet ?? "",
+      p_source_page: data.sourcePage ?? "",
+    });
     if (error) {
       console.error("[submitAiLead]", error);
       throw new Error("Could not save your request.");
@@ -246,5 +162,5 @@ export const submitAiLead = createServerFn({ method: "POST" })
     } catch (e) {
       console.error("[notify] ai lead failed", e);
     }
-    return { id: row.id };
+    return { id: row as string };
   });

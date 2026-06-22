@@ -4,6 +4,7 @@
 
 const ADMIN_EMAIL = "mithon.rayadvertising@gmail.com";
 const FROM_EMAIL = "Ray Ecommerce <onboarding@resend.dev>";
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 
 type SendOpts = {
   to: string | string[];
@@ -13,17 +14,19 @@ type SendOpts = {
 };
 
 async function sendEmail({ to, subject, html, replyTo }: SendOpts): Promise<void> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    console.warn("[notify] RESEND_API_KEY not set — skipping email:", subject);
+  const lovableKey = process.env.LOVABLE_API_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!lovableKey || !resendKey) {
+    console.warn("[notify] Resend connector not configured — skipping email:", subject);
     return;
   }
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch(`${GATEWAY_URL}/emails`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": resendKey,
       },
       body: JSON.stringify({
         from: FROM_EMAIL,
