@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -50,7 +51,21 @@ export function ContractStep({
       ? `${PLATFORM_FULL_NAME[platforms[0]]} Service Agreement`
       : "Marketplace Operations Service Agreement";
   const displayName = clientName.trim().length > 0 ? clientName : "[Your Full Legal Name]";
-  const canContinue = clientName.trim().length >= 3 && !!signature && agreed1 && agreed2;
+  const [errors, setErrors] = useState<{ name?: string; signature?: string; agreed1?: string; agreed2?: string }>({});
+
+  const handleContinue = () => {
+    const e: typeof errors = {};
+    if (clientName.trim().length < 3) e.name = "Please type your full legal name";
+    if (!signature) e.signature = "Please draw your signature";
+    if (!agreed1) e.agreed1 = "You must agree to the Service Agreement";
+    if (!agreed2) e.agreed2 = "You must confirm your information is accurate";
+    setErrors(e);
+    if (Object.keys(e).length > 0) {
+      toast.error("Please complete all required fields before continuing.");
+      return;
+    }
+    onContinue();
+  };
 
   return (
     <div className="space-y-6">
@@ -153,38 +168,49 @@ export function ContractStep({
           <div className="text-sm font-medium">Type your full legal name <span className="text-destructive">*</span></div>
           <Input
             value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
+            onChange={(e) => { setClientName(e.target.value); if (errors.name) setErrors({ ...errors, name: undefined }); }}
             placeholder="Jane A. Doe"
-            className="mt-1.5"
+            aria-invalid={!!errors.name || undefined}
+            className={`mt-1.5 ${errors.name ? "border-destructive focus-visible:ring-destructive" : ""}`}
           />
-          <p className="mt-1 text-xs text-muted-foreground">Your typed name is treated as your legal signature.</p>
+          {errors.name ? (
+            <p className="mt-1 text-xs text-destructive">{errors.name}</p>
+          ) : (
+            <p className="mt-1 text-xs text-muted-foreground">Your typed name is treated as your legal signature.</p>
+          )}
         </div>
 
         <div>
           <div className="text-sm font-medium">Draw your signature <span className="text-destructive">*</span></div>
           <div className="mt-1.5">
-            <SignaturePad onChange={setSignature} />
+            <SignaturePad onChange={(v) => { setSignature(v); if (v && errors.signature) setErrors({ ...errors, signature: undefined }); }} />
           </div>
+          {errors.signature && <p className="mt-1 text-xs text-destructive">{errors.signature}</p>}
         </div>
 
-        <label className="flex gap-3 items-start rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm cursor-pointer">
-          <Checkbox checked={agreed1} onCheckedChange={(v) => setAgreed1(!!v)} className="mt-0.5" />
-          <span className="text-foreground/85">I have read and agree to this Service Agreement.</span>
-        </label>
-        <label className="flex gap-3 items-start rounded-2xl bg-primary/5 border border-primary/20 p-4 text-sm cursor-pointer">
-          <Checkbox checked={agreed2} onCheckedChange={(v) => setAgreed2(!!v)} className="mt-0.5" />
-          <span className="text-foreground/85">
-            I confirm that all information and documents I submitted are accurate and belong to me or my business.
-          </span>
-        </label>
+        <div>
+          <label className={`flex gap-3 items-start rounded-2xl p-4 text-sm cursor-pointer ${errors.agreed1 ? "bg-destructive/5 border border-destructive/40" : "bg-primary/5 border border-primary/20"}`}>
+            <Checkbox checked={agreed1} onCheckedChange={(v) => { setAgreed1(!!v); if (v && errors.agreed1) setErrors({ ...errors, agreed1: undefined }); }} className="mt-0.5" />
+            <span className="text-foreground/85">I have read and agree to this Service Agreement.</span>
+          </label>
+          {errors.agreed1 && <p className="mt-1 text-xs text-destructive">{errors.agreed1}</p>}
+        </div>
+        <div>
+          <label className={`flex gap-3 items-start rounded-2xl p-4 text-sm cursor-pointer ${errors.agreed2 ? "bg-destructive/5 border border-destructive/40" : "bg-primary/5 border border-primary/20"}`}>
+            <Checkbox checked={agreed2} onCheckedChange={(v) => { setAgreed2(!!v); if (v && errors.agreed2) setErrors({ ...errors, agreed2: undefined }); }} className="mt-0.5" />
+            <span className="text-foreground/85">
+              I confirm that all information and documents I submitted are accurate and belong to me or my business.
+            </span>
+          </label>
+          {errors.agreed2 && <p className="mt-1 text-xs text-destructive">{errors.agreed2}</p>}
+        </div>
 
         <div className="flex gap-3 pt-2">
           <Button variant="outline" onClick={onBack} className="rounded-full">
             <ArrowLeft className="mr-1 h-4 w-4" /> Back
           </Button>
           <Button
-            onClick={onContinue}
-            disabled={!canContinue}
+            onClick={handleContinue}
             className="flex-1 brand-gradient text-white rounded-full btn-glow"
           >
             Continue to Payment <ArrowRight className="ml-1 h-4 w-4" />
