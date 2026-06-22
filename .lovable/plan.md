@@ -1,54 +1,67 @@
-# Native Backend + Admin Panel — Build Plan
+# Admin Invite (Pre-create + Temp Password)
 
-Building entirely on Lovable Cloud (Postgres + RLS + server functions). No external VPS needed. Super Admin and notifications: `mithon.rayadvertising@gmail.com`.
+Owner invites someone by email at the **Owner** level. The system creates the auth account immediately with a generated temp password, grants the Owner role, and emails the credentials with a link to sign in and reset their password.
 
-## What already exists
-- Tables: `profiles`, `user_roles`, `plan_selections`, `business_credentials`, `contact_queries`
-- RLS + admin policies via `has_role(user_id, 'admin')`
-- Auto-grant admin trigger for `mithon.rayadvertising@gmail.com`
-- Auth (email/password) + `/dashboard` (customer-side)
+## User flow
 
-## What's missing (will build)
+1. Owner opens `/admin/users` → new **"Invite admin"** button (Owner-only).
+2. Dialog: email + optional full name. Level is fixed to **Owner**.
+3. Server fn `inviteAdmin` (Owner-only):
+   - Generates a 16-char temp password (crypto random, mixed case + digits + symbol).
+   - Calls `supabaseAdmin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name, invited_by } })`.
+   - Inserts `user_roles` (admin) + `admin_profiles` (level=`owner`, is_active=true) for the new user id.
+   - Inserts an `admin_audit_log` row.
+   - Sends an email via Resend (`notifyAdminInvite`) with: temp password, **Sign in** link to `/login?reset=1`, and a note that they must change the password on first login.
+4. Login route detects `?reset=1` → after successful login, redirects to `/reset-password` (existing page) to force a new password.
+5. If the email already exists in auth, return a friendly error ("user already exists — grant admin from the Users list instead").
 
-### Phase 1 — Database (one migration)
-- `contracts` — signed service agreements (client name, signature data URL, agreed flags, platforms, total, IP, user agent, signed_at)
-- `payments` — payment intents/records (amount, method, status, client name/email, platforms, reference id)
-- `ai_leads` — Ray AI lead captures (name, email, message, source)
-- `admin_audit_log` — admin actions (who, what, target table, target id, timestamp)
-- All with proper GRANTs, RLS (admin read/update, anon insert where appropriate), and timestamp triggers
+## UI changes
 
-### Phase 2 — Wire existing frontend forms to persist + email
-- `/contact` → insert into `contact_queries` + email notify
-- `/seller-onboarding` PaymentStep → insert into `plan_selections` + `business_credentials` + `contracts` + `payments` + email notify
-- Ray AI lead capture → insert into `ai_leads` + email notify
-- Server functions in `src/lib/*.functions.ts` (anon-callable for public forms)
+- `src/routes/_authenticated/admin/users.tsx`:
+  - Add Owner-only **"Invite admin"** button + shadcn `Dialog` with `Input` (email), `Input` (full name, optional), Submit.
+  - On success, toast and invalidate the users list.
+- Keep the existing Grant/Revoke/Level/Active controls unchanged.
 
-### Phase 3 — Email notifications
-- Connect Resend connector for transactional emails
-- Send to `mithon.rayadvertising@gmail.com` on every new submission with full details
-- Send customer confirmation email back to the submitter
+## Server functions (`src/lib/admin.functions.ts`)
 
-### Phase 4 — Admin Panel at `/admin` (gated by `has_role('admin')`)
-- `/admin` — overview dashboard (counts, recent activity, charts)
-- `/admin/onboarding` — plan selections + business credentials submissions, status workflow (new → contacted → qualified → won/lost), detail view
-- `/admin/contracts` — signed contracts list, view signature, download
-- `/admin/payments` — payments list, mark paid/refunded, filters
-- `/admin/contacts` — contact queries inbox, reply via mailto, status
-- `/admin/ai-leads` — Ray AI lead captures
-- `/admin/users` — list profiles, grant/revoke admin role
-- `/admin/audit` — admin action log
+- `inviteAdmin({ email, fullName? })`:
+  - `requireSupabaseAuth` + Owner check (existing `is_owner` / `has_role`).
+  - Dynamic `await import('@/integrations/supabase/client.server')` inside handler.
+  - `auth.admin.createUser` → on duplicate, throw clear message.
+  - Insert user_roles + admin_profiles (idempotent `ON CONFLICT DO NOTHING`).
+  - Audit log entry: action=`admin_invited`, target_user_id, by=context.userId.
+  - Call `notifyAdminInvite` and return `{ userId }`.
 
-All admin pages live under `src/routes/_authenticated/admin/` with a `has_role('admin')` gate that redirects non-admins.
+## Email (`src/lib/notify.server.ts`)
 
-### Phase 5 — Production polish
-- SEO meta on every admin page (noindex)
-- Rate limiting note on public insert endpoints (RLS-only acceptable for low-volume)
-- Documentation: how to add new admins, where data lives, how to deploy
+Add `notifyAdminInvite({ to, fullName, tempPassword, loginUrl })` using the existing branded `wrap()` template. Contents:
+- Greeting with name.
+- "You've been granted Owner access to Ray Ecommerce admin."
+- Monospace box with email + temp password.
+- CTA button → `loginUrl` (`https://<site>/login?reset=1`).
+- Security note: change password immediately.
 
-## Tech approach (frontend stays untouched)
-- All form components keep current UI; only their submit handlers gain a server-function call
-- Server functions use the publishable client for anon inserts and `requireSupabaseAuth` + role check for admin reads/updates
-- Admin panel is built fresh with the existing shadcn/Tailwind tokens — same look as the marketing site (white/blue brand)
+Site URL comes from `process.env.SITE_URL` with fallback to request origin via `getRequestHost()`.
 
-## Starting now: Phase 1 migration
-Proceeding with the database migration for `contracts`, `payments`, `ai_leads`, `admin_audit_log` next.
+## Login redirect (`src/routes/login.tsx`)
+
+Read `?reset=1` from search params. On successful sign-in, if present, `navigate({ to: '/reset-password' })` instead of the default destination. No other behavior changes.
+
+## Database
+
+No new tables. Uses existing `user_roles`, `admin_profiles`, `admin_audit_log`. No migration required unless `admin_audit_log` lacks an `admin_invited` action — current schema accepts free-form action text, so no change needed.
+
+## Security notes
+
+- Temp password generated server-side with `crypto.randomBytes`, never logged.
+- Only Owners can call `inviteAdmin` (server-side role check + RLS-backed `is_owner`).
+- New account is created with `email_confirm: true` so the invitee can log in immediately; we still strongly prompt password reset on first login via `?reset=1`.
+- The temp password is included in the email body once and never stored beyond the auth row's hash.
+- Audit log records who invited whom.
+
+## Out of scope
+
+- Inviting at Manager / Support levels (current request: Owner only).
+- Magic-link or tokenized signup flows.
+- Bulk invite / CSV.
+- Forcing password reset via Supabase's "must change password" flag (not natively supported; we use the `?reset=1` redirect instead).
