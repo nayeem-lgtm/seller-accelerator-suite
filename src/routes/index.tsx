@@ -288,7 +288,7 @@ function MarketplaceStrip() {
       titleDark: "TikTok",
       titleLight: "Shop",
       tag: "GROWTH PLAY",
-      desc: "Where discovery turns into demand. We structure your listings, content strategy, and order flow so your products tap into TikTok's social-commerce momentum and reach a whole new wave of buyers",
+      desc: "Where discovery becomes demand, we optimize listings, content, and order flow so your products capture TikTok’s social-commerce momentum and reach new buyers.",
     },
     {
       label: "STARTER MARKETPLACE",
