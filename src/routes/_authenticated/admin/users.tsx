@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { listAdminUsers, setUserRole } from "@/lib/admin.functions";
+import { listAdminUsers, setUserRole, setAdminLevel, setAdminActive } from "@/lib/admin.functions";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useState } from "react";
 import { PageHeader, fmtDate } from "@/lib/admin-ui";
@@ -17,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/users")({
 function UsersAdmin() {
   const fn = useServerFn(listAdminUsers);
   const grant = useServerFn(setUserRole);
+  const setLevelFn = useServerFn(setAdminLevel);
+  const setActiveFn = useServerFn(setAdminActive);
   const qc = useQueryClient();
   const [busy, setBusy] = useState<string | null>(null);
   const { data, isLoading } = useQuery({
@@ -24,14 +27,43 @@ function UsersAdmin() {
     queryFn: () => fn(),
   });
 
+  const meLevel = (data as any[] | undefined)?.[0]?.meLevel ?? null;
+  const canManageAdmins = meLevel === "owner";
+
   async function toggleAdmin(userId: string, isAdmin: boolean) {
     setBusy(userId);
     try {
-      await grant({ data: { userId, role: "admin", grant: !isAdmin } });
+      await grant({ data: { userId, role: "admin", grant: !isAdmin, level: "support" } });
       toast.success(isAdmin ? "Admin revoked" : "Admin granted");
       qc.invalidateQueries({ queryKey: ["admin", "users"] });
-    } catch {
-      toast.error("Action failed");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Action failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function changeLevel(userId: string, level: "owner" | "manager" | "support") {
+    setBusy(userId);
+    try {
+      await setLevelFn({ data: { userId, level } });
+      toast.success("Level updated");
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Action failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function toggleActive(userId: string, active: boolean) {
+    setBusy(userId);
+    try {
+      await setActiveFn({ data: { userId, active } });
+      toast.success(active ? "Activated" : "Deactivated");
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Action failed");
     } finally {
       setBusy(null);
     }
@@ -39,7 +71,14 @@ function UsersAdmin() {
 
   return (
     <div>
-      <PageHeader title="Users & Roles" subtitle="Grant or revoke admin access." />
+      <PageHeader
+        title="Users & Roles"
+        subtitle={
+          canManageAdmins
+            ? "Owner controls: grant/revoke admin access, assign Owner/Manager/Support, activate or deactivate."
+            : "Only Owners can grant or revoke admin access."
+        }
+      />
       <Card className="overflow-hidden">
         {isLoading ? (
           <Skeleton className="h-40" />
@@ -48,7 +87,7 @@ function UsersAdmin() {
             <table className="min-w-full text-sm">
               <thead className="bg-muted/40 text-left">
                 <tr>
-                  <Th>User</Th><Th>Company</Th><Th>Roles</Th><Th>Created</Th><Th></Th>
+                  <Th>User</Th><Th>Company</Th><Th>Roles</Th><Th>Admin level</Th><Th>Active</Th><Th>Created</Th><Th></Th>
                 </tr>
               </thead>
               <tbody>
@@ -69,22 +108,63 @@ function UsersAdmin() {
                             ))
                         }
                       </Td>
+                      <Td>
+                        {isAdmin ? (
+                          canManageAdmins ? (
+                            <Select
+                              value={u.adminLevel ?? "support"}
+                              onValueChange={(v) => changeLevel(u.id, v as any)}
+                              disabled={busy === u.id}
+                            >
+                              <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="owner">Owner</SelectItem>
+                                <SelectItem value="manager">Manager</SelectItem>
+                                <SelectItem value="support">Support</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <span className="text-xs capitalize">{u.adminLevel ?? "—"}</span>
+                          )
+                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                      </Td>
+                      <Td>
+                        {isAdmin ? (
+                          <Badge variant={u.adminActive ? "default" : "secondary"}>
+                            {u.adminActive ? "Active" : "Inactive"}
+                          </Badge>
+                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                      </Td>
                       <Td className="text-xs text-muted-foreground">{fmtDate(u.created_at)}</Td>
                       <Td>
-                        <Button
-                          size="sm"
-                          variant={isAdmin ? "destructive" : "default"}
-                          disabled={busy === u.id}
-                          onClick={() => toggleAdmin(u.id, isAdmin)}
-                        >
-                          {isAdmin ? "Revoke admin" : "Grant admin"}
-                        </Button>
+                        {canManageAdmins && (
+                          <div className="flex gap-1.5">
+                            <Button
+                              size="sm"
+                              variant={isAdmin ? "destructive" : "default"}
+                              disabled={busy === u.id}
+                              onClick={() => toggleAdmin(u.id, isAdmin)}
+                            >
+                              {isAdmin ? "Revoke" : "Grant admin"}
+                            </Button>
+                            {isAdmin && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={busy === u.id}
+                                onClick={() => toggleActive(u.id, !u.adminActive)}
+                              >
+                                {u.adminActive ? "Deactivate" : "Activate"}
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </Td>
                     </tr>
                   );
                 })}
                 {(data?.length ?? 0) === 0 && (
-                  <tr><td colSpan={5} className="py-8 text-center text-muted-foreground">No users yet.</td></tr>
+                  <tr><td colSpan={7} className="py-8 text-center text-muted-foreground">No users yet.</td></tr>
                 )}
               </tbody>
             </table>

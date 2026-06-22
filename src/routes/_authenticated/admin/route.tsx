@@ -11,10 +11,12 @@ import {
   Users,
   History,
   LogOut,
+  UsersRound,
 } from "lucide-react";
 
 const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { to: "/admin/customers", label: "Customers", icon: UsersRound },
   { to: "/admin/onboarding", label: "Onboarding", icon: UserCheck },
   { to: "/admin/contracts", label: "Contracts", icon: FileSignature },
   { to: "/admin/payments", label: "Payments", icon: CreditCard },
