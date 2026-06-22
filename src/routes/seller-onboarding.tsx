@@ -98,11 +98,28 @@ function Onboarding() {
     } catch {}
   }, []);
 
-  const setField = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
-  const setPlatformField = (platform: PlatformKey, k: string, v: string) =>
+  const setField = (k: string, v: string) => {
+    setForm((f) => ({ ...f, [k]: v }));
+    setDetailsErrors((e) => (e[k] ? { ...e, [k]: "" } : e));
+  };
+  const setPlatformField = (platform: PlatformKey, k: string, v: string) => {
     setPlatformForms((all) => ({ ...all, [platform]: { ...(all[platform] || {}), [k]: v } }));
-  const setPlatformAuthorized = (platform: PlatformKey, v: boolean) =>
+    setExistingErrors((errs) => {
+      const p = errs[platform];
+      if (!p?.[k]) return errs;
+      const { [k]: _, ...rest } = p;
+      return { ...errs, [platform]: rest };
+    });
+  };
+  const setPlatformAuthorized = (platform: PlatformKey, v: boolean) => {
     setAuthorized((a) => ({ ...a, [platform]: v }));
+    if (v) setExistingErrors((errs) => {
+      const p = errs[platform];
+      if (!p?.authorize) return errs;
+      const { authorize: _, ...rest } = p;
+      return { ...errs, [platform]: rest };
+    });
+  };
 
   const togglePlatform = (k: PlatformKey) => {
     setPlatforms((prev) => (prev.includes(k) ? prev.filter((p) => p !== k) : [...prev, k]));
