@@ -19,6 +19,9 @@ export const Route = createFileRoute("/login")({
       { name: "description", content: "Log in to your Ray Ecommerce seller dashboard." },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    reset: s.reset === "1" || s.reset === 1 || s.reset === true ? 1 : undefined,
+  }),
   component: LoginPage,
 });
 
@@ -30,6 +33,7 @@ const schema = z.object({
 function LoginPage() {
   const navigate = useNavigate();
   const router = useRouter();
+  const { reset } = Route.useSearch();
   const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +60,12 @@ function LoginPage() {
     }
     toast.success("Welcome back!");
     router.invalidate();
-    navigate({ to: "/dashboard" });
+    if (reset) {
+      toast.message("Please set a new password to finish setting up your account.");
+      navigate({ to: "/reset-password" });
+    } else {
+      navigate({ to: "/dashboard" });
+    }
   }
 
   async function onGoogle() {
@@ -78,9 +87,11 @@ function LoginPage() {
           <img src={logoAsset.url} alt="Ray Ecommerce" className="h-8" />
         </div>
         <div className="rounded-2xl border border-border bg-white p-8 shadow-[0_8px_40px_-12px_rgba(59,130,246,0.2)]">
-          <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-foreground">{reset ? "Finish setting up your account" : "Welcome Back"}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Log in to access your Ray Ecommerce seller dashboard, documents, onboarding progress, and marketplace service details.
+            {reset
+              ? "Sign in with the temporary password from your invite email. You'll be prompted to set a new password immediately after."
+              : "Log in to access your Ray Ecommerce seller dashboard, documents, onboarding progress, and marketplace service details."}
           </p>
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
