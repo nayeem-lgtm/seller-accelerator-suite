@@ -16,6 +16,13 @@ import {
   platformsLabel,
   type PlatformKey,
 } from "./shared";
+import {
+  COUNTRIES,
+  STATES_BY_COUNTRY,
+  CITIES_BY_STATE,
+  POSTAL_REGEX,
+  POSTAL_LABEL,
+} from "./address-data";
 
 /* =========================================================
    Conditional Government-ID upload group
@@ -51,6 +58,16 @@ function BusinessAddressFields({
   state: Record<string, string>;
   set: (k: string, v: string) => void;
 }) {
+  const country = state.bizCountry || "";
+  const province = state.bizState || "";
+  const stateList = country ? STATES_BY_COUNTRY[country] : undefined;
+  const cityList =
+    country && province ? CITIES_BY_STATE[country]?.[province] : undefined;
+  const zipLabel = POSTAL_LABEL[country] || "ZIP / Postal Code";
+  const zipRegex = country ? POSTAL_REGEX[country] : undefined;
+  const zipValue = state.bizZip || "";
+  const zipInvalid = !!(zipRegex && zipValue && !zipRegex.test(zipValue));
+
   return (
     <div className="sm:col-span-2 space-y-3">
       <div className="text-sm font-medium text-foreground">
@@ -59,10 +76,104 @@ function BusinessAddressFields({
       <div className="grid sm:grid-cols-2 gap-4">
         <TextField label="Street Address" full value={state.bizStreet || ""} onChange={(v) => set("bizStreet", v)} required />
         <TextField label="Apartment / Suite / Unit" full value={state.bizUnit || ""} onChange={(v) => set("bizUnit", v)} />
-        <TextField label="City" value={state.bizCity || ""} onChange={(v) => set("bizCity", v)} required />
-        <TextField label="State / Province" value={state.bizState || ""} onChange={(v) => set("bizState", v)} required />
-        <TextField label="ZIP / Postal Code" value={state.bizZip || ""} onChange={(v) => set("bizZip", v)} required />
-        <TextField label="Country" value={state.bizCountry || ""} onChange={(v) => set("bizCountry", v)} required />
+
+        {/* Country */}
+        <Field label="Country" required>
+          <Select
+            value={country}
+            onValueChange={(v) => {
+              set("bizCountry", v);
+              // Reset dependent fields when country changes
+              if (state.bizState) set("bizState", "");
+              if (state.bizCity) set("bizCity", "");
+            }}
+          >
+            <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+            <SelectContent>
+              {COUNTRIES.map((c) => (
+                <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        {/* State / Province */}
+        {stateList ? (
+          <Field label="State / Province" required>
+            <Select
+              value={province}
+              onValueChange={(v) => {
+                set("bizState", v);
+                if (state.bizCity) set("bizCity", "");
+              }}
+              disabled={!country}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={country ? "Select state / province" : "Select country first"} />
+              </SelectTrigger>
+              <SelectContent>
+                {stateList.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        ) : (
+          <Field label="State / Province" required>
+            <Input
+              value={province}
+              onChange={(e) => set("bizState", e.target.value)}
+              disabled={!country}
+              placeholder={country ? "Enter state / province" : "Select country first"}
+              required
+            />
+          </Field>
+        )}
+
+        {/* City */}
+        {cityList ? (
+          <Field label="City" required>
+            <Select
+              value={state.bizCity || ""}
+              onValueChange={(v) => set("bizCity", v)}
+              disabled={!province}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={province ? "Select city" : "Select state / province first"} />
+              </SelectTrigger>
+              <SelectContent>
+                {cityList.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        ) : (
+          <Field label="City" required>
+            <Input
+              value={state.bizCity || ""}
+              onChange={(e) => set("bizCity", e.target.value)}
+              disabled={!province}
+              placeholder={province ? "Enter city" : "Select state / province first"}
+              required
+            />
+          </Field>
+        )}
+
+        {/* ZIP / Postal Code */}
+        <Field
+          label={zipLabel}
+          required
+          hint={zipInvalid ? `Enter a valid ${zipLabel.toLowerCase()} for the selected country.` : undefined}
+        >
+          <Input
+            value={zipValue}
+            onChange={(e) => set("bizZip", e.target.value)}
+            required
+            aria-invalid={zipInvalid || undefined}
+            className={zipInvalid ? "border-destructive focus-visible:ring-destructive" : undefined}
+          />
+        </Field>
       </div>
     </div>
   );
