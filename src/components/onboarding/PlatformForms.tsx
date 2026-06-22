@@ -72,7 +72,7 @@ function BusinessAddressFields({
   return (
     <div className="sm:col-span-2 space-y-3">
       <div className="text-sm font-medium text-foreground">
-        Full Business Address <span className="text-destructive">*</span>
+        Legal Business Address <span className="text-destructive">*</span>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <TextField label="Street Address" full value={state.bizStreet || ""} onChange={(v) => set("bizStreet", v)} required />
