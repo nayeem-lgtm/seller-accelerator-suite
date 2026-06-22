@@ -96,7 +96,7 @@ const GROUPS: FaqGroup[] = [
     items: [
       {
         q: "Will Ray Ecommerce need access to my seller account?",
-        a: "If store management support is required, we may need authorized access to perform service-related tasks. Access is used only for approved work such as listings, reporting, store updates, and management support.",
+        a: "Yes. As part of the store management service, Ray Ecommerce requires authorized access to your seller account to perform agreed-upon tasks, including product listings, reporting, store updates, and ongoing account management. Access is used only for service-related activities and in accordance with your authorization.",
       },
       {
         q: "Can I keep control of my store?",
