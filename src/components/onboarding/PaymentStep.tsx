@@ -9,6 +9,7 @@ import {
   Sparkles,
   Wallet,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,9 +47,30 @@ export function PaymentStep({
       : `${platforms.length} Marketplace Packages`;
   const [pay, setPay] = useState({ method: "card", cardName: clientName, cardNumber: "", exp: "", cvc: "" });
   const [processing, setProcessing] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (pay.method === "card") {
+      if (!pay.cardName.trim()) e.cardName = "Name on card is required";
+      const digits = pay.cardNumber.replace(/\s+/g, "");
+      if (!digits) e.cardNumber = "Card number is required";
+      else if (!/^\d{13,19}$/.test(digits)) e.cardNumber = "Enter a valid card number";
+      if (!pay.exp.trim()) e.exp = "Expiration is required";
+      else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(pay.exp.trim())) e.exp = "Use MM/YY format";
+      if (!pay.cvc.trim()) e.cvc = "CVC is required";
+      else if (!/^\d{3,4}$/.test(pay.cvc.trim())) e.cvc = "Enter a valid CVC";
+    }
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) {
+      toast.error("Please fill all required payment details before continuing.");
+      return;
+    }
     setProcessing(true);
     try {
       if (onSubmit) await onSubmit(pay.method);
@@ -180,26 +202,54 @@ export function PaymentStep({
             </div>
 
             <Field label="Name on card" required>
-              <Input value={pay.cardName} onChange={(e) => setPay({ ...pay, cardName: e.target.value })} required className="h-11 rounded-xl" />
+              <Input
+                value={pay.cardName}
+                onChange={(e) => { setPay({ ...pay, cardName: e.target.value }); if (errors.cardName) setErrors({ ...errors, cardName: "" }); }}
+                required
+                aria-invalid={!!errors.cardName}
+                className={`h-11 rounded-xl ${errors.cardName ? "border-destructive focus-visible:ring-destructive" : ""}`}
+              />
+              {errors.cardName && <p className="mt-1 text-xs text-destructive">{errors.cardName}</p>}
             </Field>
             <Field label="Card number" required>
               <div className="relative">
                 <Input
                   placeholder="4242 4242 4242 4242"
                   value={pay.cardNumber}
-                  onChange={(e) => setPay({ ...pay, cardNumber: e.target.value })}
+                  onChange={(e) => { setPay({ ...pay, cardNumber: e.target.value }); if (errors.cardNumber) setErrors({ ...errors, cardNumber: "" }); }}
                   required
-                  className="h-11 rounded-xl pr-12 font-mono tracking-wider"
+                  inputMode="numeric"
+                  aria-invalid={!!errors.cardNumber}
+                  className={`h-11 rounded-xl pr-12 font-mono tracking-wider ${errors.cardNumber ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
                 <CreditCard className="h-4 w-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2" />
               </div>
+              {errors.cardNumber && <p className="mt-1 text-xs text-destructive">{errors.cardNumber}</p>}
             </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Expiration (MM/YY)" required>
-                <Input placeholder="08/28" value={pay.exp} onChange={(e) => setPay({ ...pay, exp: e.target.value })} required className="h-11 rounded-xl font-mono" />
+                <Input
+                  placeholder="08/28"
+                  value={pay.exp}
+                  onChange={(e) => { setPay({ ...pay, exp: e.target.value }); if (errors.exp) setErrors({ ...errors, exp: "" }); }}
+                  required
+                  inputMode="numeric"
+                  aria-invalid={!!errors.exp}
+                  className={`h-11 rounded-xl font-mono ${errors.exp ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                />
+                {errors.exp && <p className="mt-1 text-xs text-destructive">{errors.exp}</p>}
               </Field>
               <Field label="CVC" required>
-                <Input placeholder="123" value={pay.cvc} onChange={(e) => setPay({ ...pay, cvc: e.target.value })} required className="h-11 rounded-xl font-mono" />
+                <Input
+                  placeholder="123"
+                  value={pay.cvc}
+                  onChange={(e) => { setPay({ ...pay, cvc: e.target.value }); if (errors.cvc) setErrors({ ...errors, cvc: "" }); }}
+                  required
+                  inputMode="numeric"
+                  aria-invalid={!!errors.cvc}
+                  className={`h-11 rounded-xl font-mono ${errors.cvc ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                />
+                {errors.cvc && <p className="mt-1 text-xs text-destructive">{errors.cvc}</p>}
               </Field>
             </div>
           </div>
