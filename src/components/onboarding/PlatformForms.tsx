@@ -18,6 +18,30 @@ import {
 } from "./shared";
 
 /* =========================================================
+   Conditional Government-ID upload group
+   ========================================================= */
+function IdUploads({ idType }: { idType: string }) {
+  if (!idType) return null;
+  const helper = "Upload clear images for verification purposes.";
+  let uploads: string[] = [];
+  if (idType === "dl") uploads = ["Upload Driver License Front", "Upload Driver License Back"];
+  else if (idType === "passport") uploads = ["Upload Passport Photo Page"];
+  else if (idType === "state_id") uploads = ["Upload State ID Front", "Upload State ID Back"];
+  if (uploads.length === 0) return null;
+  return (
+    <div className="sm:col-span-2 space-y-2.5">
+      <div className="text-sm font-medium text-foreground">Government ID Upload <span className="text-destructive">*</span></div>
+      <p className="text-xs text-muted-foreground">{helper}</p>
+      <div className={`grid gap-3 ${uploads.length > 1 ? "sm:grid-cols-2" : ""}`}>
+        {uploads.map((u) => (
+          <FileUploadBox key={u} label={u} required accept=".jpg,.jpeg,.png,.pdf" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    MULTI-PLATFORM EXISTING ACCOUNT FORM
    - Renders one credentials card per selected platform
    - Per-platform authorization checkbox (long legal wording)
