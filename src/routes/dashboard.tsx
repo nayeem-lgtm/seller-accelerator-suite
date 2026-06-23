@@ -409,10 +409,7 @@ function DashboardPage() {
             </p>
             <p className="mt-1 text-xs text-muted-foreground">Typical response time: under 24 hours</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild size="sm" className="rounded-full brand-gradient text-white">
-                <Link to="/contact"><LifeBuoy className="h-4 w-4 mr-1" /> Contact Support</Link>
-              </Button>
-              <Button asChild size="sm" variant="outline" className="rounded-full">
+              <Button asChild size="sm" variant="outline" className="rounded-full bg-background hover:bg-accent">
                 <Link to="/contact"><CalendarClock className="h-4 w-4 mr-1" /> Schedule Strategy Call</Link>
               </Button>
             </div>
