@@ -25,7 +25,6 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EbayAutomationRouteImport } from './routes/ebay-automation'
 import { Route as EbayRouteImport } from './routes/ebay'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AboutRouteImport } from './routes/about'
@@ -126,11 +125,6 @@ const EbayAutomationRoute = EbayAutomationRouteImport.update({
 const EbayRoute = EbayRouteImport.update({
   id: '/ebay',
   path: '/ebay',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -250,7 +244,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/ebay': typeof EbayRouteWithChildren
   '/ebay-automation': typeof EbayAutomationRoute
   '/faq': typeof FaqRoute
@@ -289,7 +282,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/ebay-automation': typeof EbayAutomationRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -326,7 +318,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/ebay': typeof EbayRouteWithChildren
   '/ebay-automation': typeof EbayAutomationRoute
   '/faq': typeof FaqRoute
@@ -367,7 +358,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/blog'
     | '/contact'
-    | '/dashboard'
     | '/ebay'
     | '/ebay-automation'
     | '/faq'
@@ -406,7 +396,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/blog'
     | '/contact'
-    | '/dashboard'
     | '/ebay-automation'
     | '/faq'
     | '/forgot-password'
@@ -442,7 +431,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/blog'
     | '/contact'
-    | '/dashboard'
     | '/ebay'
     | '/ebay-automation'
     | '/faq'
@@ -483,7 +471,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BlogRoute: typeof BlogRoute
   ContactRoute: typeof ContactRoute
-  DashboardRoute: typeof DashboardRoute
   EbayRoute: typeof EbayRouteWithChildren
   EbayAutomationRoute: typeof EbayAutomationRoute
   FaqRoute: typeof FaqRoute
@@ -616,13 +603,6 @@ declare module '@tanstack/react-router' {
       path: '/ebay'
       fullPath: '/ebay'
       preLoaderRoute: typeof EbayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -857,7 +837,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BlogRoute: BlogRoute,
   ContactRoute: ContactRoute,
-  DashboardRoute: DashboardRoute,
   EbayRoute: EbayRouteWithChildren,
   EbayAutomationRoute: EbayAutomationRoute,
   FaqRoute: FaqRoute,
