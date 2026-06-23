@@ -34,6 +34,7 @@ import { Route as WalmartIndexRouteImport } from './routes/walmart.index'
 import { Route as TiktokShopIndexRouteImport } from './routes/tiktok-shop.index'
 import { Route as EbayIndexRouteImport } from './routes/ebay.index'
 import { Route as BlogSlugRouteImport } from './routes/blog_.$slug'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as BlogStoriesSlugRouteImport } from './routes/blog_.stories.$slug'
@@ -171,6 +172,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -261,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/walmart': typeof WalmartRouteWithChildren
   '/walmart-automation': typeof WalmartAutomationRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/ebay/': typeof EbayIndexRoute
   '/tiktok-shop/': typeof TiktokShopIndexRoute
@@ -295,6 +302,7 @@ export interface FileRoutesByTo {
   '/terms-of-service': typeof TermsOfServiceRoute
   '/tiktok-automation': typeof TiktokAutomationRoute
   '/walmart-automation': typeof WalmartAutomationRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/ebay': typeof EbayIndexRoute
   '/tiktok-shop': typeof TiktokShopIndexRoute
@@ -335,6 +343,7 @@ export interface FileRoutesById {
   '/walmart': typeof WalmartRouteWithChildren
   '/walmart-automation': typeof WalmartAutomationRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog_/$slug': typeof BlogSlugRoute
   '/ebay/': typeof EbayIndexRoute
   '/tiktok-shop/': typeof TiktokShopIndexRoute
@@ -375,6 +384,7 @@ export interface FileRouteTypes {
     | '/walmart'
     | '/walmart-automation'
     | '/admin'
+    | '/dashboard'
     | '/blog/$slug'
     | '/ebay/'
     | '/tiktok-shop/'
@@ -409,6 +419,7 @@ export interface FileRouteTypes {
     | '/terms-of-service'
     | '/tiktok-automation'
     | '/walmart-automation'
+    | '/dashboard'
     | '/blog/$slug'
     | '/ebay'
     | '/tiktok-shop'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/walmart'
     | '/walmart-automation'
     | '/_authenticated/admin'
+    | '/_authenticated/dashboard'
     | '/blog_/$slug'
     | '/ebay/'
     | '/tiktok-shop/'
@@ -668,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -789,10 +808,12 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
