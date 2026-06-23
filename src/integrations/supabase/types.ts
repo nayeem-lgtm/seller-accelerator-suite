@@ -445,40 +445,64 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address_line_1: string | null
+          avatar_url: string | null
+          city: string | null
           company_name: string | null
+          country: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
           onboarding_status: string
+          password_last_updated_at: string | null
           payment_status: string
           phone: string | null
           selected_marketplace: string | null
+          state: string | null
           updated_at: string
+          website_url: string | null
+          zip_code: string | null
         }
         Insert: {
+          address_line_1?: string | null
+          avatar_url?: string | null
+          city?: string | null
           company_name?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
           onboarding_status?: string
+          password_last_updated_at?: string | null
           payment_status?: string
           phone?: string | null
           selected_marketplace?: string | null
+          state?: string | null
           updated_at?: string
+          website_url?: string | null
+          zip_code?: string | null
         }
         Update: {
+          address_line_1?: string | null
+          avatar_url?: string | null
+          city?: string | null
           company_name?: string | null
+          country?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
           onboarding_status?: string
+          password_last_updated_at?: string | null
           payment_status?: string
           phone?: string | null
           selected_marketplace?: string | null
+          state?: string | null
           updated_at?: string
+          website_url?: string | null
+          zip_code?: string | null
         }
         Relationships: []
       }

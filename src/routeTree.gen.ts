@@ -25,7 +25,6 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EbayAutomationRouteImport } from './routes/ebay-automation'
 import { Route as EbayRouteImport } from './routes/ebay'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AboutRouteImport } from './routes/about'
@@ -35,9 +34,13 @@ import { Route as WalmartIndexRouteImport } from './routes/walmart.index'
 import { Route as TiktokShopIndexRouteImport } from './routes/tiktok-shop.index'
 import { Route as EbayIndexRouteImport } from './routes/ebay.index'
 import { Route as BlogSlugRouteImport } from './routes/blog_.$slug'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as BlogStoriesSlugRouteImport } from './routes/blog_.stories.$slug'
+import { Route as AuthenticatedDashboardSecurityRouteImport } from './routes/_authenticated/dashboard.security'
+import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminOnboardingRouteImport } from './routes/_authenticated/admin/onboarding'
@@ -128,11 +131,6 @@ const EbayRoute = EbayRouteImport.update({
   path: '/ebay',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -177,11 +175,22 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -192,6 +201,18 @@ const BlogStoriesSlugRoute = BlogStoriesSlugRouteImport.update({
   path: '/blog/stories/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardSecurityRoute =
+  AuthenticatedDashboardSecurityRouteImport.update({
+    id: '/security',
+    path: '/security',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardProfileRoute =
+  AuthenticatedDashboardProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -250,7 +271,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/ebay': typeof EbayRouteWithChildren
   '/ebay-automation': typeof EbayAutomationRoute
   '/faq': typeof FaqRoute
@@ -268,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/walmart': typeof WalmartRouteWithChildren
   '/walmart-automation': typeof WalmartAutomationRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/ebay/': typeof EbayIndexRoute
   '/tiktok-shop/': typeof TiktokShopIndexRoute
@@ -280,8 +301,11 @@ export interface FileRoutesByFullPath {
   '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/blog/stories/$slug': typeof BlogStoriesSlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/admin/customers/$id': typeof AuthenticatedAdminCustomersIdRoute
 }
 export interface FileRoutesByTo {
@@ -289,7 +313,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/ebay-automation': typeof EbayAutomationRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -315,8 +338,11 @@ export interface FileRoutesByTo {
   '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/blog/stories/$slug': typeof BlogStoriesSlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/admin/customers/$id': typeof AuthenticatedAdminCustomersIdRoute
 }
 export interface FileRoutesById {
@@ -326,7 +352,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/blog': typeof BlogRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/ebay': typeof EbayRouteWithChildren
   '/ebay-automation': typeof EbayAutomationRoute
   '/faq': typeof FaqRoute
@@ -344,6 +369,7 @@ export interface FileRoutesById {
   '/walmart': typeof WalmartRouteWithChildren
   '/walmart-automation': typeof WalmartAutomationRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/blog_/$slug': typeof BlogSlugRoute
   '/ebay/': typeof EbayIndexRoute
   '/tiktok-shop/': typeof TiktokShopIndexRoute
@@ -356,8 +382,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/_authenticated/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/blog_/stories/$slug': typeof BlogStoriesSlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/admin/customers_/$id': typeof AuthenticatedAdminCustomersIdRoute
 }
 export interface FileRouteTypes {
@@ -367,7 +396,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/blog'
     | '/contact'
-    | '/dashboard'
     | '/ebay'
     | '/ebay-automation'
     | '/faq'
@@ -385,6 +413,7 @@ export interface FileRouteTypes {
     | '/walmart'
     | '/walmart-automation'
     | '/admin'
+    | '/dashboard'
     | '/blog/$slug'
     | '/ebay/'
     | '/tiktok-shop/'
@@ -397,8 +426,11 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/payments'
     | '/admin/users'
+    | '/dashboard/profile'
+    | '/dashboard/security'
     | '/blog/stories/$slug'
     | '/admin/'
+    | '/dashboard/'
     | '/admin/customers/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -406,7 +438,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/blog'
     | '/contact'
-    | '/dashboard'
     | '/ebay-automation'
     | '/faq'
     | '/forgot-password'
@@ -432,8 +463,11 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/payments'
     | '/admin/users'
+    | '/dashboard/profile'
+    | '/dashboard/security'
     | '/blog/stories/$slug'
     | '/admin'
+    | '/dashboard'
     | '/admin/customers/$id'
   id:
     | '__root__'
@@ -442,7 +476,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/blog'
     | '/contact'
-    | '/dashboard'
     | '/ebay'
     | '/ebay-automation'
     | '/faq'
@@ -460,6 +493,7 @@ export interface FileRouteTypes {
     | '/walmart'
     | '/walmart-automation'
     | '/_authenticated/admin'
+    | '/_authenticated/dashboard'
     | '/blog_/$slug'
     | '/ebay/'
     | '/tiktok-shop/'
@@ -472,8 +506,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/onboarding'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/users'
+    | '/_authenticated/dashboard/profile'
+    | '/_authenticated/dashboard/security'
     | '/blog_/stories/$slug'
     | '/_authenticated/admin/'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/admin/customers_/$id'
   fileRoutesById: FileRoutesById
 }
@@ -483,7 +520,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   BlogRoute: typeof BlogRoute
   ContactRoute: typeof ContactRoute
-  DashboardRoute: typeof DashboardRoute
   EbayRoute: typeof EbayRouteWithChildren
   EbayAutomationRoute: typeof EbayAutomationRoute
   FaqRoute: typeof FaqRoute
@@ -618,13 +654,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EbayRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -688,12 +717,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -708,6 +751,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/stories/$slug'
       preLoaderRoute: typeof BlogStoriesSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard/security': {
+      id: '/_authenticated/dashboard/security'
+      path: '/security'
+      fullPath: '/dashboard/security'
+      preLoaderRoute: typeof AuthenticatedDashboardSecurityRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/profile': {
+      id: '/_authenticated/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof AuthenticatedDashboardProfileRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
@@ -807,12 +864,32 @@ const AuthenticatedAdminRouteRouteWithChildren =
     AuthenticatedAdminRouteRouteChildren,
   )
 
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
+  AuthenticatedDashboardSecurityRoute: typeof AuthenticatedDashboardSecurityRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,
+    AuthenticatedDashboardSecurityRoute: AuthenticatedDashboardSecurityRoute,
+    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -857,7 +934,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   BlogRoute: BlogRoute,
   ContactRoute: ContactRoute,
-  DashboardRoute: DashboardRoute,
   EbayRoute: EbayRouteWithChildren,
   EbayAutomationRoute: EbayAutomationRoute,
   FaqRoute: FaqRoute,
