@@ -41,6 +41,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as BlogStoriesSlugRouteImport } from './routes/blog_.stories.$slug'
 import { Route as AuthenticatedDashboardServiceRouteImport } from './routes/_authenticated/dashboard.service'
 import { Route as AuthenticatedDashboardSecurityRouteImport } from './routes/_authenticated/dashboard.security'
+import { Route as AuthenticatedDashboardPaymentsRouteImport } from './routes/_authenticated/dashboard.payments'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminOnboardingRouteImport } from './routes/_authenticated/admin/onboarding'
@@ -213,6 +214,12 @@ const AuthenticatedDashboardSecurityRoute =
     path: '/security',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardPaymentsRoute =
+  AuthenticatedDashboardPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -301,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/dashboard/service': typeof AuthenticatedDashboardServiceRoute
   '/blog/stories/$slug': typeof BlogStoriesSlugRoute
@@ -338,6 +346,7 @@ export interface FileRoutesByTo {
   '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/dashboard/service': typeof AuthenticatedDashboardServiceRoute
   '/blog/stories/$slug': typeof BlogStoriesSlugRoute
@@ -382,6 +391,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/_authenticated/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/_authenticated/dashboard/service': typeof AuthenticatedDashboardServiceRoute
   '/blog_/stories/$slug': typeof BlogStoriesSlugRoute
@@ -426,6 +436,7 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/payments'
     | '/admin/users'
+    | '/dashboard/payments'
     | '/dashboard/security'
     | '/dashboard/service'
     | '/blog/stories/$slug'
@@ -463,6 +474,7 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/payments'
     | '/admin/users'
+    | '/dashboard/payments'
     | '/dashboard/security'
     | '/dashboard/service'
     | '/blog/stories/$slug'
@@ -506,6 +518,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/onboarding'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/users'
+    | '/_authenticated/dashboard/payments'
     | '/_authenticated/dashboard/security'
     | '/_authenticated/dashboard/service'
     | '/blog_/stories/$slug'
@@ -766,6 +779,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSecurityRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/payments': {
+      id: '/_authenticated/dashboard/payments'
+      path: '/payments'
+      fullPath: '/dashboard/payments'
+      preLoaderRoute: typeof AuthenticatedDashboardPaymentsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -865,6 +885,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardPaymentsRoute: typeof AuthenticatedDashboardPaymentsRoute
   AuthenticatedDashboardSecurityRoute: typeof AuthenticatedDashboardSecurityRoute
   AuthenticatedDashboardServiceRoute: typeof AuthenticatedDashboardServiceRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -872,6 +893,7 @@ interface AuthenticatedDashboardRouteChildren {
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardPaymentsRoute: AuthenticatedDashboardPaymentsRoute,
     AuthenticatedDashboardSecurityRoute: AuthenticatedDashboardSecurityRoute,
     AuthenticatedDashboardServiceRoute: AuthenticatedDashboardServiceRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
