@@ -1,368 +1,310 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import {
-  CreditCard,
-  LifeBuoy,
-  CheckCircle2,
-  Circle,
-  Sparkles,
-  Store,
-  UserCheck,
-  CalendarClock,
-  ArrowRight,
-  Activity,
-  ListChecks,
-} from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Upload, Trash2, User as UserIcon, Briefcase } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile, initialsOf } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
-  component: OverviewPage,
+  component: ProfilePage,
 });
 
-type Profile = {
-  full_name: string | null;
-  email: string | null;
-  company_name: string | null;
-  selected_marketplace: string | null;
-  onboarding_status: string;
-  payment_status: string;
-  created_at?: string | null;
-  updated_at?: string | null;
+const EMPTY = {
+  full_name: "",
+  phone: "",
+  company_name: "",
+  selected_marketplace: "",
+  address_line_1: "",
+  city: "",
+  state: "",
+  zip_code: "",
+  country: "",
+  website_url: "",
 };
 
-type PaymentRow = {
-  amount: number | null;
-  currency: string | null;
-  payment_status: string | null;
-  reference_id: string | null;
-  created_at: string | null;
-};
-
-const MARKETPLACE_LABEL: Record<string, string> = {
-  walmart: "Walmart",
-  tiktok_shop: "TikTok Shop",
-  ebay: "eBay",
-  multiple: "Multiple Platforms",
-};
-
-const STEPS = [
-  "Account Created",
-  "Business Information Submitted",
-  "Service Selected",
-  "Payment Completed",
-  "Account Review",
-  "Marketplace Setup Started",
-];
-
-const STATUS_KEY = (s: string) => s.toLowerCase().replace(/\s+/g, "_");
-
-function paymentMeta(status: string) {
-  const s = (status || "pending").toLowerCase();
-  if (s === "paid" || s === "completed")
-    return { label: "Paid", tone: "bg-emerald-50 text-emerald-700 border-emerald-200", cta: "View Receipt" };
-  if (s === "failed")
-    return { label: "Failed", tone: "bg-rose-50 text-rose-700 border-rose-200", cta: "Retry Payment" };
-  if (s === "refunded")
-    return { label: "Refunded", tone: "bg-slate-100 text-slate-700 border-slate-200", cta: "View Status" };
-  if (s === "under_review" || s === "review")
-    return { label: "Under Review", tone: "bg-amber-50 text-amber-800 border-amber-200", cta: "View Status" };
-  return { label: "Pending", tone: "bg-blue-50 text-blue-700 border-blue-200", cta: "Complete Payment" };
-}
-
-function accountStatusFrom(profile: Profile | null) {
-  if (!profile) return { label: "Pending Setup", tone: "bg-slate-100 text-slate-700 border-slate-200" };
-  const pay = (profile.payment_status || "").toLowerCase();
-  const ob = profile.onboarding_status || "account_created";
-  if (ob === "marketplace_setup_started")
+function accountStatus(pay?: string | null, ob?: string | null) {
+  const p = (pay || "").toLowerCase();
+  const o = (ob || "").toLowerCase();
+  if (o === "marketplace_setup_started")
     return { label: "Setup Started", tone: "bg-blue-50 text-blue-700 border-blue-200" };
-  if (ob === "account_review")
+  if (o === "account_review")
     return { label: "Under Review", tone: "bg-amber-50 text-amber-800 border-amber-200" };
-  if (pay === "pending" && ob !== "account_created")
-    return { label: "Payment Pending", tone: "bg-blue-50 text-blue-700 border-blue-200" };
-  if (pay === "paid") return { label: "Active", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+  if (p === "paid") return { label: "Active", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" };
   return { label: "Pending Setup", tone: "bg-slate-100 text-slate-700 border-slate-200" };
 }
 
-function formatDate(iso?: string | null) {
-  if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-  } catch {
-    return "—";
-  }
-}
-
-function OverviewPage() {
+function ProfilePage() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [payment, setPayment] = useState<PaymentRow | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, avatarUrl, loading, refresh } = useProfile();
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [form, setForm] = useState<typeof EMPTY>(EMPTY);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    (async () => {
-      const { data: p } = await supabase
-        .from("profiles")
-        .select(
-          "full_name,email,company_name,selected_marketplace,onboarding_status,payment_status,created_at,updated_at",
-        )
-        .eq("id", user.id)
-        .maybeSingle();
-      if (cancelled) return;
-      setProfile((p as Profile | null) ?? null);
+    if (!profile) return;
+    setForm({
+      full_name: profile.full_name ?? "",
+      phone: profile.phone ?? "",
+      company_name: profile.company_name ?? "",
+      selected_marketplace: profile.selected_marketplace ?? "",
+      address_line_1: profile.address_line_1 ?? "",
+      city: profile.city ?? "",
+      state: profile.state ?? "",
+      zip_code: profile.zip_code ?? "",
+      country: profile.country ?? "",
+      website_url: profile.website_url ?? "",
+    });
+  }, [profile]);
 
-      if (p?.email) {
-        const { data: pay } = await supabase
-          .from("payments")
-          .select("amount,currency,payment_status,reference_id,created_at")
-          .eq("client_email", p.email)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (!cancelled) setPayment((pay as PaymentRow | null) ?? null);
-      }
-      if (!cancelled) setLoading(false);
-    })();
-    return () => {
-      cancelled = true;
+  function update<K extends keyof typeof EMPTY>(k: K, v: (typeof EMPTY)[K]) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+    if (!form.full_name?.trim()) {
+      toast.error("Full name is required");
+      return;
+    }
+    setSaving(true);
+    const payload: Record<string, unknown> = {
+      full_name: form.full_name.trim(),
+      phone: form.phone?.trim() || null,
+      company_name: form.company_name?.trim() || null,
+      selected_marketplace: form.selected_marketplace || null,
+      address_line_1: form.address_line_1?.trim() || null,
+      city: form.city?.trim() || null,
+      state: form.state?.trim() || null,
+      zip_code: form.zip_code?.trim() || null,
+      country: form.country?.trim() || null,
+      website_url: form.website_url?.trim() || null,
     };
-  }, [user]);
+    const { error } = await supabase.from("profiles").update(payload as never).eq("id", user.id);
+    setSaving(false);
+    if (error) {
+      toast.error("Could not save profile. Please try again.");
+      return;
+    }
+    await refresh();
+    toast.success("Profile updated");
+  }
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !user) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Please upload a JPG, PNG, or WEBP image");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be under 2 MB");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      setUploading(false);
+      toast.error("Upload failed. Please try again.");
+      return;
+    }
+    if (profile?.avatar_url && profile.avatar_url !== path) {
+      await supabase.storage.from("avatars").remove([profile.avatar_url]);
+    }
+    const { error: dbErr } = await supabase
+      .from("profiles")
+      .update({ avatar_url: path } as never)
+      .eq("id", user.id);
+    if (dbErr) {
+      setUploading(false);
+      toast.error("Saved upload but could not update profile");
+      return;
+    }
+    await refresh();
+    setUploading(false);
+    toast.success("Photo updated");
+  }
+
+  async function handleAvatarRemove() {
+    if (!user || !profile?.avatar_url) return;
+    setUploading(true);
+    await supabase.storage.from("avatars").remove([profile.avatar_url]);
+    await supabase.from("profiles").update({ avatar_url: null } as never).eq("id", user.id);
+    await refresh();
+    setUploading(false);
+    toast.success("Photo removed");
+  }
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-32 w-full rounded-2xl" />
-        <div className="grid gap-4 md:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-2xl" />
-          ))}
-        </div>
-        <Skeleton className="h-72 w-full rounded-2xl" />
+        <Skeleton className="h-40 w-full rounded-2xl" />
+        <Skeleton className="h-96 w-full rounded-2xl" />
       </div>
     );
   }
 
-  const name = profile?.full_name || user?.email?.split("@")[0] || "Seller";
-  const hasMarketplace = Boolean(profile?.selected_marketplace);
-  const marketplace = hasMarketplace
-    ? MARKETPLACE_LABEL[profile!.selected_marketplace as string] ?? profile!.selected_marketplace!
-    : "Not selected";
-  const obKey = profile?.onboarding_status ?? "account_created";
-  const foundIdx = STEPS.findIndex((s) => STATUS_KEY(s) === obKey);
-  const stepIndex = foundIdx >= 0 ? foundIdx : 0;
-  const completedSteps = stepIndex + 1;
-  const progress = Math.round((completedSteps / STEPS.length) * 100);
-  const pay = paymentMeta(payment?.payment_status || profile?.payment_status || "pending");
-  const acct = accountStatusFrom(profile);
-
-  const nextAction = (() => {
-    if (obKey === "account_created")
-      return { title: "Complete Business Information", desc: "Submit your business details to continue onboarding.", to: "/seller-onboarding", cta: "Continue Onboarding" };
-    if (!hasMarketplace || obKey === "business_information_submitted")
-      return { title: "Choose Your Service Plan", desc: "Pick the marketplace plan that fits your goals.", to: "/pricing", cta: "Choose a Plan" };
-    if ((payment?.payment_status || profile?.payment_status) !== "paid" && obKey !== "account_review" && obKey !== "marketplace_setup_started")
-      return { title: "Complete Payment", desc: "Finish payment to activate your service.", to: "/seller-onboarding", cta: "Complete Payment" };
-    if (obKey === "account_review")
-      return { title: "Your account is under review", desc: "Our team is verifying your details. We'll notify you shortly.", to: "/contact", cta: "Contact Support" };
-    if (obKey === "marketplace_setup_started")
-      return { title: "Marketplace setup has started", desc: "Your specialist is configuring your seller account.", to: "/contact", cta: "Talk to Your Specialist" };
-    return { title: "Your onboarding is complete", desc: "You're all set. Reach out anytime for support.", to: "/contact", cta: "Contact Support" };
-  })();
-
-  const activity: { label: string; date?: string | null }[] = [];
-  if (profile?.created_at) activity.push({ label: "Account created", date: profile.created_at });
-  if (stepIndex >= 1) activity.push({ label: "Business information submitted", date: profile?.updated_at });
-  if (hasMarketplace) activity.push({ label: `Service selected — ${marketplace}`, date: profile?.updated_at });
-  if ((payment?.payment_status || profile?.payment_status) === "paid")
-    activity.push({ label: "Payment completed", date: payment?.created_at });
-  if (obKey === "account_review") activity.push({ label: "Account review started", date: profile?.updated_at });
-  if (obKey === "marketplace_setup_started")
-    activity.push({ label: "Marketplace setup started", date: profile?.updated_at });
+  const status = accountStatus(profile?.payment_status, profile?.onboarding_status);
 
   return (
     <div className="space-y-6">
-      {/* Welcome header */}
-      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="truncate text-2xl font-bold">Welcome back, {name}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Track your onboarding progress and complete the next step for your marketplace setup.
-            </p>
-            <div className="mt-3">
-              <Badge className={`rounded-full border px-3 py-1 text-xs font-medium ${acct.tone}`} variant="outline">
-                {acct.label}
-              </Badge>
+      <div>
+        <h1 className="text-2xl font-bold">Profile</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage your personal and business information.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-white p-6 shadow-sm flex flex-col sm:flex-row sm:items-center gap-5">
+        <div className="relative">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Avatar"
+              className="h-20 w-20 rounded-full object-cover border border-border"
+            />
+          ) : (
+            <div className="h-20 w-20 rounded-full grid place-items-center bg-blue-50 text-primary font-bold text-xl border border-border">
+              {initialsOf(form.full_name, user?.email)}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Summary cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard icon={<Sparkles className="h-4 w-4" />} title="Onboarding" value={`${completedSteps} / ${STEPS.length}`} helper={`${progress}% complete`} />
-        <SummaryCard icon={<Store className="h-4 w-4" />} title="Selected Service" value={marketplace} helper={hasMarketplace ? "Active plan" : "No plan selected yet"} />
-        <SummaryCard icon={<CreditCard className="h-4 w-4" />} title="Payment" value={pay.label} helper={payment?.amount ? `${payment.currency ?? "USD"} ${Number(payment.amount).toFixed(2)}` : "Awaiting payment"} />
-        <SummaryCard icon={<UserCheck className="h-4 w-4" />} title="Account" value={acct.label} helper={`Updated ${formatDate(profile?.updated_at)}`} />
-      </div>
-
-      {/* Onboarding + Next action */}
-      <div id="onboarding" className="grid gap-6 lg:grid-cols-3 scroll-mt-24">
-        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm lg:col-span-2">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Onboarding Progress</h2>
-            <span className="text-xs text-muted-foreground">{completedSteps} of {STEPS.length}</span>
-          </div>
-          <div className="mt-3"><Progress value={progress} /></div>
-          <ul className="mt-6 space-y-3">
-            {STEPS.map((s, i) => (
-              <li key={s} className="flex items-center gap-3 text-sm">
-                {i <= stepIndex ? <CheckCircle2 className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5 text-muted-foreground/40" />}
-                <span className={i === stepIndex ? "font-semibold text-primary" : i < stepIndex ? "font-medium" : "text-muted-foreground"}>{s}</span>
-                {i === stepIndex && (
-                  <Badge variant="outline" className="ml-auto rounded-full border-blue-200 bg-blue-50 text-[10px] text-blue-700">Current</Badge>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
-            <ListChecks className="h-4 w-4" /> Next Action
-          </div>
-          <h3 className="mt-3 text-lg font-bold">{nextAction.title}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">{nextAction.desc}</p>
-          <Button asChild className="mt-5 w-full rounded-full brand-gradient text-white btn-glow">
-            <Link to={nextAction.to}>
-              {nextAction.cta} <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      {/* Service + Payment + Account */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <DetailCard id="service" icon={<Store className="h-4 w-4 text-primary" />} title="Selected Service">
-          {hasMarketplace ? (
-            <>
-              <p className="text-xl font-semibold text-primary">{marketplace}</p>
-              {payment?.amount && (
-                <p className="mt-1 text-sm text-muted-foreground">{payment.currency ?? "USD"} {Number(payment.amount).toFixed(2)}</p>
-              )}
-              <Button asChild variant="outline" size="sm" className="mt-4 rounded-full">
-                <Link to="/pricing">Change Plan</Link>
-              </Button>
-            </>
-          ) : (
-            <>
-              <p className="text-sm text-muted-foreground">No service selected yet.</p>
-              <Button asChild size="sm" className="mt-4 rounded-full brand-gradient text-white">
-                <Link to="/pricing">Choose a Plan</Link>
-              </Button>
-            </>
-          )}
-        </DetailCard>
-
-        <DetailCard id="payments" icon={<CreditCard className="h-4 w-4 text-primary" />} title="Payment Status">
-          <Badge className={`rounded-full border px-3 py-1 text-xs font-medium ${pay.tone}`} variant="outline">
-            {pay.label}
-          </Badge>
-          <div className="mt-3 space-y-1 text-sm">
-            {payment?.amount != null && (
-              <p><span className="text-muted-foreground">Amount:</span> {payment.currency ?? "USD"} {Number(payment.amount).toFixed(2)}</p>
-            )}
-            {payment?.created_at && (
-              <p><span className="text-muted-foreground">Date:</span> {formatDate(payment.created_at)}</p>
-            )}
-            {payment?.reference_id && (
-              <p className="truncate"><span className="text-muted-foreground">Ref:</span> {payment.reference_id}</p>
-            )}
-            {!payment && <p className="text-muted-foreground">No payment on file yet.</p>}
-          </div>
-          <Button asChild size="sm" className="mt-4 rounded-full brand-gradient text-white">
-            <Link to="/seller-onboarding">{pay.cta}</Link>
-          </Button>
-        </DetailCard>
-
-        <DetailCard icon={<UserCheck className="h-4 w-4 text-primary" />} title="Account Status">
-          <Badge className={`rounded-full border px-3 py-1 text-xs font-medium ${acct.tone}`} variant="outline">
-            {acct.label}
-          </Badge>
-          <div className="mt-3 space-y-1 text-sm">
-            <p><span className="text-muted-foreground">Signed up:</span> {formatDate(profile?.created_at)}</p>
-            <p><span className="text-muted-foreground">Stage:</span> {STEPS[stepIndex]}</p>
-            <p><span className="text-muted-foreground">Updated:</span> {formatDate(profile?.updated_at)}</p>
-          </div>
-        </DetailCard>
-      </div>
-
-      {/* Activity + Support */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <div id="activity" className="rounded-2xl border border-border bg-white p-6 shadow-sm scroll-mt-24">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <Activity className="h-4 w-4 text-primary" /> Recent Activity
-          </div>
-          {activity.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">No recent activity yet. Complete your next step to begin onboarding.</p>
-          ) : (
-            <ul className="mt-4 space-y-3">
-              {activity.slice(-6).reverse().map((a, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm">
-                  <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{a.label}</p>
-                    <p className="text-xs text-muted-foreground">{formatDate(a.date)}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
           )}
         </div>
-
-        <div id="support" className="rounded-2xl border border-border bg-white p-6 shadow-sm scroll-mt-24">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <LifeBuoy className="h-4 w-4 text-primary" /> Support
+        <div className="flex-1 min-w-0">
+          <h2 className="text-lg font-semibold truncate">{form.full_name || user?.email}</h2>
+          <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+          <div className="mt-2">
+            <Badge variant="outline" className={`rounded-full border px-3 py-1 text-xs font-medium ${status.tone}`}>
+              {status.label}
+            </Badge>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Need help with your seller account? Our team can guide you through the next step.
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">Typical response time: under 24 hours</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="outline" className="rounded-full bg-background hover:bg-accent">
-              <Link to="/contact"><CalendarClock className="h-4 w-4 mr-1" /> Schedule Strategy Call</Link>
+        </div>
+        <div className="flex gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
+            Change Photo
+          </Button>
+          {profile?.avatar_url && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="rounded-full text-destructive hover:text-destructive"
+              onClick={handleAvatarRemove}
+              disabled={uploading}
+            >
+              <Trash2 className="h-4 w-4 mr-1.5" /> Remove
             </Button>
-          </div>
+          )}
         </div>
       </div>
+
+      <form onSubmit={handleSave} className="space-y-6">
+        <Section title="Personal Information" icon={<UserIcon className="h-4 w-4 text-primary" />}>
+          <Field label="Full Name" required>
+            <Input value={form.full_name} onChange={(e) => update("full_name", e.target.value)} maxLength={120} />
+          </Field>
+          <Field label="Email">
+            <Input value={user?.email ?? ""} readOnly className="bg-muted/40" />
+          </Field>
+          <Field label="Phone">
+            <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} maxLength={32} />
+          </Field>
+          <Field label="Company Name">
+            <Input value={form.company_name} onChange={(e) => update("company_name", e.target.value)} maxLength={120} />
+          </Field>
+        </Section>
+
+        <Section title="Business Information" icon={<Briefcase className="h-4 w-4 text-primary" />}>
+          <Field label="Address">
+            <Input value={form.address_line_1} onChange={(e) => update("address_line_1", e.target.value)} maxLength={200} />
+          </Field>
+          <Field label="City">
+            <Input value={form.city} onChange={(e) => update("city", e.target.value)} maxLength={80} />
+          </Field>
+          <Field label="State / Region">
+            <Input value={form.state} onChange={(e) => update("state", e.target.value)} maxLength={80} />
+          </Field>
+          <Field label="ZIP / Postal Code">
+            <Input value={form.zip_code} onChange={(e) => update("zip_code", e.target.value)} maxLength={20} />
+          </Field>
+          <Field label="Country">
+            <Input value={form.country} onChange={(e) => update("country", e.target.value)} maxLength={80} />
+          </Field>
+          <Field label="Website URL">
+            <Input value={form.website_url} onChange={(e) => update("website_url", e.target.value)} maxLength={255} placeholder="https://" />
+          </Field>
+          <Field label="Marketplace Interest">
+            <Select value={form.selected_marketplace || undefined} onValueChange={(v) => update("selected_marketplace", v)}>
+              <SelectTrigger><SelectValue placeholder="Select a marketplace" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="walmart">Walmart</SelectItem>
+                <SelectItem value="tiktok_shop">TikTok Shop</SelectItem>
+                <SelectItem value="ebay">eBay</SelectItem>
+                <SelectItem value="multiple">Multiple Platforms</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </Section>
+
+        <div className="flex justify-end">
+          <Button type="submit" disabled={saving} className="rounded-full brand-gradient text-white btn-glow px-6">
+            {saving ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving</> : "Save Changes"}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
 
-function SummaryCard({ icon, title, value, helper }: { icon: React.ReactNode; title: string; value: string; helper: string }) {
+function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border bg-white p-5 shadow-sm transition hover:shadow-md">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-blue-50 text-primary">{icon}</span>
-        {title}
-      </div>
-      <p className="mt-3 truncate text-lg font-bold">{value}</p>
-      <p className="mt-1 truncate text-xs text-muted-foreground">{helper}</p>
+    <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+      <h3 className="text-base font-semibold flex items-center gap-2">{icon} {title}</h3>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">{children}</div>
     </div>
   );
 }
 
-function DetailCard({ id, icon, title, children }: { id?: string; icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div id={id} className="rounded-2xl border border-border bg-white p-6 shadow-sm transition hover:shadow-md scroll-mt-24">
-      <div className="flex items-center gap-2 text-sm font-semibold">{icon} {title}</div>
-      <div className="mt-4">{children}</div>
+    <div className="space-y-1.5">
+      <Label className="text-sm font-medium">
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
+      {children}
     </div>
   );
 }

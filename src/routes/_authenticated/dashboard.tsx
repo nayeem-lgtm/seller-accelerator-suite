@@ -1,10 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  LayoutDashboard,
   UserCircle2,
-  ShieldCheck,
-  ListChecks,
   Store,
   CreditCard,
   LifeBuoy,
@@ -16,33 +13,36 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 import { toast } from "sonner";
+import { ProfileProvider, initialsOf, useProfile } from "@/hooks/useProfile";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   ssr: false,
   head: () => ({ meta: [{ title: "Client Portal | Ray Ecommerce" }] }),
-  component: DashboardLayout,
+  component: DashboardLayoutWrapper,
 });
 
-type NavItem = { to?: string; hash?: string; label: string; icon: any; exact?: boolean };
+function DashboardLayoutWrapper() {
+  return (
+    <ProfileProvider>
+      <DashboardLayout />
+    </ProfileProvider>
+  );
+}
 
-const PAGES: NavItem[] = [
-  { to: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
-  { to: "/dashboard/profile", label: "Profile", icon: UserCircle2 },
-  { to: "/dashboard/security", label: "Security", icon: ShieldCheck },
-];
+type NavItem = { to: string; label: string; icon: any; exact?: boolean };
 
-const SECTIONS: NavItem[] = [
-  { hash: "onboarding", label: "Onboarding", icon: ListChecks },
-  { hash: "service", label: "Selected Service", icon: Store },
-  { hash: "payments", label: "Payments", icon: CreditCard },
-  { hash: "support", label: "Support", icon: LifeBuoy },
-  { hash: "activity", label: "Recent Activity", icon: Activity },
+const NAV: NavItem[] = [
+  { to: "/dashboard", label: "Profile", icon: UserCircle2, exact: true },
+  { to: "/dashboard/service", label: "Selected Service", icon: Store },
+  { to: "/dashboard/payments", label: "Payments", icon: CreditCard },
+  { to: "/dashboard/support", label: "Support", icon: LifeBuoy },
+  { to: "/dashboard/activity", label: "Recent Activity", icon: Activity },
 ];
 
 function DashboardLayout() {
   const { user } = useAuth();
+  const { profile, avatarUrl } = useProfile();
   const navigate = useNavigate();
   const loc = useLocation();
   const [open, setOpen] = useState(false);
@@ -61,7 +61,7 @@ function DashboardLayout() {
     navigate({ to: "/login" });
   }
 
-  const onOverview = loc.pathname === "/dashboard";
+  const displayName = profile?.full_name || user?.email?.split("@")[0] || "Account";
 
   function NavBody({ onClick }: { onClick?: () => void }) {
     return (
@@ -71,52 +71,43 @@ function DashboardLayout() {
             Ray Ecommerce
           </Link>
           <div className="mt-1 text-base font-bold">Client Portal</div>
-          <div className="mt-0.5 text-[11px] text-muted-foreground truncate">{user?.email}</div>
+          <div className="mt-4 flex items-center gap-3">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Avatar"
+                className="h-10 w-10 rounded-full object-cover border border-border"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full grid place-items-center bg-blue-50 text-primary font-bold text-sm border border-border">
+                {initialsOf(profile?.full_name, user?.email)}
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate">{displayName}</div>
+              <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
+            </div>
+          </div>
         </div>
 
-        <nav className="p-3 space-y-0.5">
-          {PAGES.map((n) => {
-            const active = n.exact ? loc.pathname === n.to : loc.pathname === n.to;
+        <nav className="p-3 space-y-1 flex-1">
+          {NAV.map((n) => {
+            const active = n.exact ? loc.pathname === n.to : loc.pathname.startsWith(n.to);
             const Icon = n.icon;
             return (
               <Link
                 key={n.to}
-                to={n.to!}
+                to={n.to}
                 onClick={onClick}
                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
                   active
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-foreground/70 hover:bg-muted hover:text-foreground"
+                    : "text-foreground/75 hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Icon className="h-4 w-4" />
                 {n.label}
               </Link>
-            );
-          })}
-
-          <div className="pt-4 pb-1 px-3 text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground">
-            Sections
-          </div>
-          {SECTIONS.map((n) => {
-            const Icon = n.icon;
-            const href = `/dashboard#${n.hash}`;
-            return (
-              <a
-                key={n.hash}
-                href={href}
-                onClick={(e) => {
-                  if (onOverview) {
-                    e.preventDefault();
-                    document.getElementById(n.hash!)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }
-                  onClick?.();
-                }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition"
-              >
-                <Icon className="h-4 w-4" />
-                {n.label}
-              </a>
             );
           })}
         </nav>
@@ -151,12 +142,10 @@ function DashboardLayout() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50/40 to-white">
       <div className="mx-auto max-w-[1400px] md:grid md:grid-cols-[260px_1fr]">
-        {/* Desktop sidebar */}
         <aside className="hidden md:flex md:flex-col border-r border-border bg-white md:min-h-screen md:sticky md:top-0 md:max-h-screen md:overflow-y-auto">
           <NavBody />
         </aside>
 
-        {/* Mobile header */}
         <div className="md:hidden sticky top-0 z-30 flex items-center justify-between border-b border-border bg-white px-4 py-3">
           <div>
             <div className="text-[10px] font-bold tracking-[0.22em] uppercase text-primary">Ray Ecommerce</div>
