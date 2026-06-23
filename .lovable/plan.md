@@ -1,67 +1,82 @@
-# Admin Invite (Pre-create + Temp Password)
+# Customer Dashboard → Premium Client Portal
 
-Owner invites someone by email at the **Owner** level. The system creates the auth account immediately with a generated temp password, grants the Owner role, and emails the credentials with a link to sign in and reset their password.
+Rebuild `/dashboard` as a sidebar-based client portal with Overview, Profile, Security, and section anchors. No document upload anywhere. All data scoped to logged-in user via existing RLS.
 
-## User flow
+## Routes (new)
 
-1. Owner opens `/admin/users` → new **"Invite admin"** button (Owner-only).
-2. Dialog: email + optional full name. Level is fixed to **Owner**.
-3. Server fn `inviteAdmin` (Owner-only):
-   - Generates a 16-char temp password (crypto random, mixed case + digits + symbol).
-   - Calls `supabaseAdmin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name, invited_by } })`.
-   - Inserts `user_roles` (admin) + `admin_profiles` (level=`owner`, is_active=true) for the new user id.
-   - Inserts an `admin_audit_log` row.
-   - Sends an email via Resend (`notifyAdminInvite`) with: temp password, **Sign in** link to `/login?reset=1`, and a note that they must change the password on first login.
-4. Login route detects `?reset=1` → after successful login, redirects to `/reset-password` (existing page) to force a new password.
-5. If the email already exists in auth, return a friendly error ("user already exists — grant admin from the Users list instead").
+```
+src/routes/_authenticated/dashboard.tsx        → layout (sidebar + Outlet)
+src/routes/_authenticated/dashboard.index.tsx  → Overview (current dashboard content, upgraded)
+src/routes/_authenticated/dashboard.profile.tsx
+src/routes/_authenticated/dashboard.security.tsx
+```
 
-## UI changes
+Old `src/routes/dashboard.tsx` is replaced — moved under `_authenticated/` so route gate handles auth redirect (removes manual redirect logic + flash).
 
-- `src/routes/_authenticated/admin/users.tsx`:
-  - Add Owner-only **"Invite admin"** button + shadcn `Dialog` with `Input` (email), `Input` (full name, optional), Submit.
-  - On success, toast and invalidate the users list.
-- Keep the existing Grant/Revoke/Level/Active controls unchanged.
+## Layout
 
-## Server functions (`src/lib/admin.functions.ts`)
+- Reuse site `Header` at top (unchanged public nav).
+- Add `DashboardSidebar` component:
+  - Brand block: "Ray Ecommerce / Client Portal" + user email
+  - Menu: Overview, Profile, Security, Onboarding (#anchor on overview), Selected Service (#), Payments (#), Support (#), Recent Activity (#), Sign out
+  - Active item = blue pill; collapses to Sheet drawer on mobile via `Sheet` from shadcn.
+- Content area = max-w-6xl, spacious cards (reuse existing premium styling).
 
-- `inviteAdmin({ email, fullName? })`:
-  - `requireSupabaseAuth` + Owner check (existing `is_owner` / `has_role`).
-  - Dynamic `await import('@/integrations/supabase/client.server')` inside handler.
-  - `auth.admin.createUser` → on duplicate, throw clear message.
-  - Insert user_roles + admin_profiles (idempotent `ON CONFLICT DO NOTHING`).
-  - Audit log entry: action=`admin_invited`, target_user_id, by=context.userId.
-  - Call `notifyAdminInvite` and return `{ userId }`.
+## Overview page
 
-## Email (`src/lib/notify.server.ts`)
+Keep current upgraded dashboard content (welcome, 4 summary cards, onboarding tracker [6 steps, no Documents], next action, selected service / payment / account detail, recent activity, support). Section IDs added for sidebar anchors.
 
-Add `notifyAdminInvite({ to, fullName, tempPassword, loginUrl })` using the existing branded `wrap()` template. Contents:
-- Greeting with name.
-- "You've been granted Owner access to Ray Ecommerce admin."
-- Monospace box with email + temp password.
-- CTA button → `loginUrl` (`https://<site>/login?reset=1`).
-- Security note: change password immediately.
+## Profile page
 
-Site URL comes from `process.env.SITE_URL` with fallback to request origin via `getRequestHost()`.
+- Header card: avatar (initials fallback), name, email, status badge, Change/Remove Photo buttons.
+- Editable form (react-hook-form + zod): full_name, email (read-only), phone, company_name, selected_marketplace (Walmart / TikTok Shop / eBay).
+- Business info (added to profiles): address_line_1, city, state, zip_code, country, website_url.
+- Save → `supabase.from('profiles').update().eq('id', user.id)` + toast.
+- Avatar: upload to `avatars` storage bucket (new, public), path `${user.id}/avatar.${ext}`, save URL to `profiles.avatar_url`. 2 MB max, jpg/png/webp.
 
-## Login redirect (`src/routes/login.tsx`)
+## Security page
 
-Read `?reset=1` from search params. On successful sign-in, if present, `navigate({ to: '/reset-password' })` instead of the default destination. No other behavior changes.
+- Change Password card: current + new + confirm. Verify current via `signInWithPassword(email, current)`; on success call `updateUser({ password })`. Strength meter + show/hide. Toast results.
+- Login Security card: last_sign_in_at, created_at, email_confirmed_at, password_last_updated_at (new column).
+- Helper text card with security tips.
+- "Forgot password" link → existing `/forgot-password`.
 
-## Database
+## Backend (one migration)
 
-No new tables. Uses existing `user_roles`, `admin_profiles`, `admin_audit_log`. No migration required unless `admin_audit_log` lacks an `admin_invited` action — current schema accepts free-form action text, so no change needed.
+```sql
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS avatar_url text,
+  ADD COLUMN IF NOT EXISTS address_line_1 text,
+  ADD COLUMN IF NOT EXISTS city text,
+  ADD COLUMN IF NOT EXISTS state text,
+  ADD COLUMN IF NOT EXISTS zip_code text,
+  ADD COLUMN IF NOT EXISTS country text,
+  ADD COLUMN IF NOT EXISTS website_url text,
+  ADD COLUMN IF NOT EXISTS password_last_updated_at timestamptz;
+```
 
-## Security notes
+Existing profile RLS already lets user select/update own row — verify, no policy change needed.
 
-- Temp password generated server-side with `crypto.randomBytes`, never logged.
-- Only Owners can call `inviteAdmin` (server-side role check + RLS-backed `is_owner`).
-- New account is created with `email_confirm: true` so the invitee can log in immediately; we still strongly prompt password reset on first login via `?reset=1`.
-- The temp password is included in the email body once and never stored beyond the auth row's hash.
-- Audit log records who invited whom.
+Create public `avatars` storage bucket + RLS: anyone can read, owner can insert/update/delete their `${auth.uid()}/*` files.
 
-## Out of scope
+## Bug-fix sweep
 
-- Inviting at Manager / Support levels (current request: Owner only).
-- Magic-link or tokenized signup flows.
-- Bulk invite / CSV.
-- Forcing password reset via Supabase's "must change password" flag (not natively supported; we use the `?reset=1` redirect instead).
+- Remove all document upload references project-wide (search `Documents`, `Upload`, `document`).
+- Convert manual auth redirect in dashboard → use `_authenticated/` gate (fixes refresh flash, login-redirect issues).
+- Guard null/undefined profile fields with `—` everywhere.
+- Fix SVG hydration mismatch in PlatformLogo (`y1` precision) — round coords to 4 decimals.
+
+## Technical notes
+
+- Sidebar uses shadcn `Sidebar` primitives (already installed) with `SidebarProvider` wrapping only the dashboard layout, not the whole app.
+- Forms: react-hook-form + zod (already in deps).
+- Toasts: existing `sonner`.
+- All file edits scoped to dashboard; public site, admin, onboarding flows untouched.
+
+## Out of scope (per request)
+
+- 2FA, logout-all-sessions (only add if fully functional → skip).
+- Public website redesign.
+- Admin panel changes (admin already reads profile fields; new columns flow through).
+
+Please confirm and I'll implement.
