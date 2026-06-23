@@ -18,6 +18,7 @@ export type Profile = {
   website_url: string | null;
   onboarding_status: string | null;
   payment_status: string | null;
+  password_last_updated_at: string | null;
   created_at: string | null;
   updated_at: string | null;
 };
@@ -37,7 +38,7 @@ const ProfileContext = createContext<Ctx>({
 });
 
 const SELECT =
-  "id,full_name,email,phone,company_name,selected_marketplace,avatar_url,address_line_1,city,state,zip_code,country,website_url,onboarding_status,payment_status,created_at,updated_at";
+  "id,full_name,email,phone,company_name,selected_marketplace,avatar_url,address_line_1,city,state,zip_code,country,website_url,onboarding_status,payment_status,password_last_updated_at,created_at,updated_at";
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();

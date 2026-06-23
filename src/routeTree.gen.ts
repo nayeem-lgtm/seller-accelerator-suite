@@ -43,6 +43,7 @@ import { Route as AuthenticatedDashboardSupportRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardServiceRouteImport } from './routes/_authenticated/dashboard.service'
 import { Route as AuthenticatedDashboardSecurityRouteImport } from './routes/_authenticated/dashboard.security'
 import { Route as AuthenticatedDashboardPaymentsRouteImport } from './routes/_authenticated/dashboard.payments'
+import { Route as AuthenticatedDashboardActivityRouteImport } from './routes/_authenticated/dashboard.activity'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminOnboardingRouteImport } from './routes/_authenticated/admin/onboarding'
@@ -227,6 +228,12 @@ const AuthenticatedDashboardPaymentsRoute =
     path: '/payments',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardActivityRoute =
+  AuthenticatedDashboardActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -315,6 +322,7 @@ export interface FileRoutesByFullPath {
   '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
   '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/dashboard/service': typeof AuthenticatedDashboardServiceRoute
@@ -354,6 +362,7 @@ export interface FileRoutesByTo {
   '/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
   '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/dashboard/service': typeof AuthenticatedDashboardServiceRoute
@@ -400,6 +409,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/onboarding': typeof AuthenticatedAdminOnboardingRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/dashboard/activity': typeof AuthenticatedDashboardActivityRoute
   '/_authenticated/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/_authenticated/dashboard/security': typeof AuthenticatedDashboardSecurityRoute
   '/_authenticated/dashboard/service': typeof AuthenticatedDashboardServiceRoute
@@ -446,6 +456,7 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/payments'
     | '/admin/users'
+    | '/dashboard/activity'
     | '/dashboard/payments'
     | '/dashboard/security'
     | '/dashboard/service'
@@ -485,6 +496,7 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/payments'
     | '/admin/users'
+    | '/dashboard/activity'
     | '/dashboard/payments'
     | '/dashboard/security'
     | '/dashboard/service'
@@ -530,6 +542,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/onboarding'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/users'
+    | '/_authenticated/dashboard/activity'
     | '/_authenticated/dashboard/payments'
     | '/_authenticated/dashboard/security'
     | '/_authenticated/dashboard/service'
@@ -806,6 +819,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardPaymentsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/activity': {
+      id: '/_authenticated/dashboard/activity'
+      path: '/activity'
+      fullPath: '/dashboard/activity'
+      preLoaderRoute: typeof AuthenticatedDashboardActivityRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -905,6 +925,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardActivityRoute: typeof AuthenticatedDashboardActivityRoute
   AuthenticatedDashboardPaymentsRoute: typeof AuthenticatedDashboardPaymentsRoute
   AuthenticatedDashboardSecurityRoute: typeof AuthenticatedDashboardSecurityRoute
   AuthenticatedDashboardServiceRoute: typeof AuthenticatedDashboardServiceRoute
@@ -914,6 +935,7 @@ interface AuthenticatedDashboardRouteChildren {
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardActivityRoute: AuthenticatedDashboardActivityRoute,
     AuthenticatedDashboardPaymentsRoute: AuthenticatedDashboardPaymentsRoute,
     AuthenticatedDashboardSecurityRoute: AuthenticatedDashboardSecurityRoute,
     AuthenticatedDashboardServiceRoute: AuthenticatedDashboardServiceRoute,
