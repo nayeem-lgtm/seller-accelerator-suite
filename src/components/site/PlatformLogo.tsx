@@ -83,12 +83,13 @@ export function PlatformLogo({
 }
 
 function Spark({ cx, cy, r, color }: { cx: number; cy: number; r: number; color: string }) {
+  const round = (n: number) => Math.round(n * 1000) / 1000;
   const rays = Array.from({ length: 6 }).map((_, i) => {
     const a = (i * Math.PI) / 3;
-    const x1 = cx + Math.cos(a) * (r * 0.35);
-    const y1 = cy + Math.sin(a) * (r * 0.35);
-    const x2 = cx + Math.cos(a) * r;
-    const y2 = cy + Math.sin(a) * r;
+    const x1 = round(cx + Math.cos(a) * (r * 0.35));
+    const y1 = round(cy + Math.sin(a) * (r * 0.35));
+    const x2 = round(cx + Math.cos(a) * r);
+    const y2 = round(cy + Math.sin(a) * r);
     return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={3.4} strokeLinecap="round" />;
   });
   return (
